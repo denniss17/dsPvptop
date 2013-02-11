@@ -1,0 +1,21 @@
+# The header send when somebody uses /pvptop
+pvp_top_header: '&e========== &6PvPTop &e=========='
+# The format of a single line in the pvptop
+pvp_top_line: '&e<rank> - &6<player> &e - <kills> Kills'
+# Database settings
+database:
+   url: 'jdbc:mysql://localhost:3306/'
+   database: 'database'
+   user: 'username'
+   password: 'password'
+   table_pvp_top: dspvptop_kills
+# Permissions to give to players
+permission:
+  # kills contains all the permissions someone gets when he/she has more or the same
+  # amount of kills as put in front of the : character. Format: <numberOfKills>: <permission>
+  # IMPORTANT The number needs to be put between quotes (example: '100')
+  kills:
+    # example config down here
+    #'50': title.pvp50
+    #'100': title.pvp100
+    #'200': title.pvp200

@@ -1,0 +1,19 @@
+name: dsPvptop
+main: denniss17.dsPvptop.DS_Pvptop
+version: 1.0.0
+author: Denniss17
+description: This plugins adds pvptop.
+commands:
+   pvptop:
+      description: Shows the pvp top
+      usage: /<command> <start>
+      permission: dspvptop.pvptop
+permissions:
+   dspvptop.*:
+      description: Gives access to all commands
+      default: op
+      children:
+         dspvptop.pvptop: true
+   dspvptop.pvptop:
+      description: Permission to use /pvptop
+      default: true
