@@ -2,6 +2,7 @@ package denniss17.dsPvptop;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.command.CommandSender;
@@ -16,7 +17,6 @@ import denniss17.dsPvptop.db.DatabaseConnection;
 
 
 public class DS_Pvptop extends JavaPlugin{	
-	private boolean databaseEnabled;	
 	private DatabaseConnection databaseConnection;
 	
 	/** Mapping from playername to PemissionsAttachment */
@@ -35,39 +35,39 @@ public class DS_Pvptop extends JavaPlugin{
 	public void onEnable(){
 		// Register listeners
 		Listener playerlistener = new PlayerListener(this);
-		this.getServer().getPluginManager()
-				.registerEvents(playerlistener, this);
+		this.getServer().getPluginManager().registerEvents(playerlistener, this);
 		
 		// Set the command executors
 		CommandExec commandExec = new CommandExec(this);
 		this.getCommand("pvptop").setExecutor(commandExec);
 		
-		databaseEnabled = this.getConfig().getBoolean("general.mysql.enabled", false);
+		// Save the config to the file
+		getConfig().options().copyDefaults(true);
+		saveConfig();
 		
-		if(databaseEnabled){
-			databaseConnection = new DatabaseConnection(this);
-			try {
-				checkTable();
-			} catch (SQLException e) {
-				if (e instanceof java.sql.SQLTimeoutException) {
-					getLogger().severe("== SQL TIMEOUT ==");
-				} else {
-					getLogger().severe("== SQL EXCEPTION ==");
-				}
-				getLogger().severe("The database connection failed. Please check your config.yml. Details:");
-				getLogger().severe("Message: " + e.getMessage());
-				getLogger().severe("Error code: " + e.getErrorCode());
-				getLogger().severe("SQL State: " + e.getSQLState());
-				getLogger().severe("Because this plugin depends on the database, it will now be DISABLED");
-				this.getServer().getPluginManager().disablePlugin(this);
+		grantedPermissions = new HashMap<String, PermissionAttachment>();
+		databaseConnection = new DatabaseConnection(this);
+		try {
+			checkTable();
+		} catch (SQLException e) {
+			if (e instanceof java.sql.SQLTimeoutException) {
+				getLogger().severe("== SQL TIMEOUT ==");
+			} else {
+				getLogger().severe("== SQL EXCEPTION ==");
 			}
-		}		
+			getLogger().severe("The database connection failed. Please check your config.yml. Details:");
+			getLogger().severe("Message: " + e.getMessage());
+			getLogger().severe("Error code: " + e.getErrorCode());
+			getLogger().severe("SQL State: " + e.getSQLState());
+			getLogger().severe("Because this plugin depends on the database, it will now be DISABLED");
+			this.getServer().getPluginManager().disablePlugin(this);
+		}
 	}
 	
 	private void checkTable() throws SQLException{
-		if(!databaseConnection.tableExists(this.getConfig().getString("general.mysql.table_pvp_top"), "id")){
+		if(!databaseConnection.tableExists(this.getConfig().getString("database.table_pvp_top"), "id")){
 			String query = "CREATE TABLE IF NOT EXISTS `" + 
-					this.getConfig().getString("general.mysql.table_pvp_top") + "` (  " +
+					this.getConfig().getString("database.table_pvp_top") + "` (  " +
 					"`id` int(11) NOT NULL AUTO_INCREMENT, " +
 					"`killer` varchar(32) NOT NULL, " +
 					"`victim` varchar(32) NOT NULL, " +
@@ -79,36 +79,34 @@ public class DS_Pvptop extends JavaPlugin{
 		}
 	}
 	
-	private void handlePlayerKill(Entity killer, Player victim, Projectile weapon) {		
-		if(databaseEnabled){
-			if(killer instanceof Player){
-				// Weapon name
-				String weaponName;
-				if(weapon!=null){
-					weaponName = weapon.getType().name();
-				}else{
-					weaponName = ((Player)killer).getItemInHand().getType().name();
-				}
-				
-				// Query
-				String query = "INSERT INTO `" + 
-						this.getConfig().getString("general.mysql.table_pvp_top") +
-						"` ( `id` , `killer` , `victim`, `weapon` , `timestamp`) VALUES ( NULL, '" + 
-							((Player)killer).getName().toLowerCase() + "', '" + 
-							victim.getName().toLowerCase() + "', '" +
-							weaponName +
-							"', CURRENT_TIMESTAMP);";
-				try {
-					databaseConnection.executeUpdate(query);
-					reloadPermissions((Player)killer);
-				} catch (SQLException e) {
-					handleSQLException(e);
-				}
-			}else if(killer instanceof Projectile){
-				// Recall function with shooter of projectile as killer
-				handlePlayerKill(((Projectile)killer).getShooter(), victim, (Projectile)killer);
+	private void handlePlayerKill(Entity killer, Player victim, Projectile weapon) {
+		if(killer instanceof Player){
+			// Weapon name
+			String weaponName;
+			if(weapon!=null){
+				weaponName = weapon.getType().name();
+			}else{
+				weaponName = ((Player)killer).getItemInHand().getType().name();
 			}
-		}	
+			
+			// Query
+			String query = "INSERT INTO `" + 
+					this.getConfig().getString("database.table_pvp_top") +
+					"` ( `id` , `killer` , `victim`, `weapon` , `timestamp`) VALUES ( NULL, '" + 
+						((Player)killer).getName().toLowerCase() + "', '" + 
+						victim.getName().toLowerCase() + "', '" +
+						weaponName +
+						"', CURRENT_TIMESTAMP);";
+			try {
+				databaseConnection.executeUpdate(query);
+				reloadPermissions((Player)killer);
+			} catch (SQLException e) {
+				handleSQLException(e);
+			}
+		}else if(killer instanceof Projectile){
+			// Recall function with shooter of projectile as killer
+			handlePlayerKill(((Projectile)killer).getShooter(), victim, (Projectile)killer);
+		}
 	}
 	
 	public void handlePlayerKill(Entity killer, Player victim){
@@ -121,9 +119,11 @@ public class DS_Pvptop extends JavaPlugin{
 		
 		try {
 			int numberOfKills = getNumberOfKills(player);
-			for(String count: getConfig().getConfigurationSection("permission.kills").getKeys(false)){
-				if(numberOfKills >= Integer.parseInt(count)){
-					addPermission(player, getConfig().getString("permission.kills." + count));			
+			if(getConfig().contains("permission.kills")){
+				for(String count: getConfig().getConfigurationSection("permission.kills").getKeys(false)){
+					if(numberOfKills >= Integer.parseInt(count)){
+						addPermission(player, getConfig().getString("permission.kills." + count));			
+					}
 				}
 			}
 		} catch (SQLException e) {

@@ -8,6 +8,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 
 public class PlayerListener implements Listener {
 
@@ -26,11 +27,19 @@ public class PlayerListener implements Listener {
 			// Player killed by entity
 			Entity killer = ((EntityDamageByEntityEvent)entityDamageEvent).getDamager();
 			plugin.handlePlayerKill(killer, (Player)entityDamageEvent.getEntity());
-		}/*
+		}else{
+			plugin.getLogger().info(player.getName() + " died, but is not killed by a player");
+		}
+		/*
 		MAYBE FUTURE ADDITION
 		else{
 			DamageCause cause = entityDamageEvent.getCause();
 			plugin.handleEnvironmentKill(cause, (Player)entityDamageEvent.getEntity());
 		}*/
+	}
+	
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onPlayerJoin(PlayerJoinEvent event){
+		plugin.reloadPermissions(event.getPlayer());
 	}
 }

@@ -76,9 +76,7 @@ public class DatabaseConnection{
 	 * @return either (1) the row count for SQL Data Manipulation Language (DML) statements or (2) 0 for SQL statements that return nothing
 	 * @throws SQLException (Could also be SQLTimeoutException)
 	 */
-	public int executeUpdate(String query) throws SQLException{
-		System.out.println("Update: " + query);
-		
+	public int executeUpdate(String query) throws SQLException{		
 		this.connect();
 		
 		Statement statement = this.connection.createStatement();
@@ -97,7 +95,6 @@ public class DatabaseConnection{
 	 * @throws SQLException (Could also be SQLTimeoutException)
 	 */
 	public ResultSet executeQuery(String query) throws SQLException{
-		System.out.println("Query: " + query);
 		
 		this.connect();
 		
