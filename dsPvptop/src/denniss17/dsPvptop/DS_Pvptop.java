@@ -17,11 +17,13 @@ import denniss17.dsPvptop.db.DatabaseConnection;
 
 
 public class DS_Pvptop extends JavaPlugin{	
+	/** The DatabaseConnection used */
 	private DatabaseConnection databaseConnection;
 	
 	/** Mapping from playername to PemissionsAttachment */
 	protected Map<String, PermissionAttachment> grantedPermissions;
 	
+	/** A class representing one item in the pvptop */
 	class PvptopItem {
 		public int killCount;
 		public String playerName;
@@ -68,12 +70,11 @@ public class DS_Pvptop extends JavaPlugin{
 		if(!databaseConnection.tableExists(this.getConfig().getString("database.table_pvp_top"), "id")){
 			String query = "CREATE TABLE IF NOT EXISTS `" + 
 					this.getConfig().getString("database.table_pvp_top") + "` (  " +
-					"`id` int(11) NOT NULL AUTO_INCREMENT, " +
-					"`killer` varchar(32) NOT NULL, " +
-					"`victim` varchar(32) NOT NULL, " +
-					"`weapon` varchar(32) NOT NULL, " +
+					"`user` varchar(32) NOT NULL, " +
+					"`kills` int(11) NOT NULL, " +
+					"`deaths` int(11) NOT NULL, " +
 					"`timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, " +
-					"PRIMARY KEY (`id`))";
+					"PRIMARY KEY (`user`))";
 			databaseConnection.executeUpdate(query);
 			this.getLogger().info("Database table not found, created...");
 		}
@@ -145,9 +146,9 @@ public class DS_Pvptop extends JavaPlugin{
 	
 	public int getNumberOfKills(Player player) throws SQLException{
 		
-		String query = "SELECT Killer, COUNT(Victim) AS Count FROM `"
+		String query = "SELECT killer, COUNT(victim) AS Count FROM `"
 				+ getConfig().getString("database.table_pvp_top")
-				+ "` WHERE Killer='" + player.getName() + "';";
+				+ "` WHERE killer='" + player.getName() + "';";
 		
 		ResultSet resultSet = databaseConnection.executeQuery(query);
 		
@@ -161,20 +162,42 @@ public class DS_Pvptop extends JavaPlugin{
 		}
 	}
 	
-	public PvptopItem[] getPvptop(int start, int amount) throws SQLException {
+	public PvptopItem[] getDeathtop(int start, int amount) throws SQLException {
 		PvptopItem[] top = new PvptopItem[amount];
 
-		String query = "SELECT Killer, COUNT(Victim) AS Count FROM `"
+		String query = "SELECT victim, COUNT(killer) as count FROM `"
 				+ getConfig().getString("database.table_pvp_top")
-				+ "` GROUP BY Killer ORDER BY Count(Victim) DESC LIMIT "
+				+ "` GROUP BY victim ORDER BY COUNT(killer) DESC LIMIT "
 				+ start + ", " + amount + ";";
 
 		ResultSet result = databaseConnection.executeQuery(query);
 
 		int i = 0;
 		while (result.next()) {
-			top[i] = new PvptopItem(result.getString("Killer"),
-					result.getInt("Count"));
+			top[i] = new PvptopItem(result.getString("victim"),
+					result.getInt("count"));
+			i++;
+		}
+
+		databaseConnection.close();
+
+		return top;
+	}
+	
+	public PvptopItem[] getKilltop(int start, int amount) throws SQLException {
+		PvptopItem[] top = new PvptopItem[amount];
+
+		String query = "SELECT killer, COUNT(victim) as count FROM `"
+				+ getConfig().getString("database.table_pvp_top")
+				+ "` GROUP BY killer ORDER BY COUNT(victim) DESC LIMIT "
+				+ start + ", " + amount + ";";
+
+		ResultSet result = databaseConnection.executeQuery(query);
+
+		int i = 0;
+		while (result.next()) {
+			top[i] = new PvptopItem(result.getString("killer"),
+					result.getInt("count"));
 			i++;
 		}
 
