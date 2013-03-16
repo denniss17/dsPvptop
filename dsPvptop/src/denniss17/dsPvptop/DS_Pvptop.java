@@ -13,7 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import denniss17.dsPvptop.db.DatabaseConnection;
+import denniss17.dsPvptop.io.DatabaseConnection;
 
 
 public class DS_Pvptop extends JavaPlugin{	

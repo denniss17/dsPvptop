@@ -1,7 +1,7 @@
 # The header send when somebody uses /pvptop
-pvp_top_header: '&e========== &6PvPTop &e=========='
+pvp_top_header: '&8~~=={ &ePvPTop &8}==~~'
 # The format of a single line in the pvptop
-pvp_top_line: '&e<rank> - &6<player> &e - <kills> Kills'
+pvp_top_line: '&f<rank> - &e<player> &f - <kills> Kills'
 # Database settings
 database:
    url: 'jdbc:mysql://localhost:3306/'

@@ -1,4 +1,4 @@
-package denniss17.dsPvptop.db;
+package denniss17.dsPvptop.io;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
