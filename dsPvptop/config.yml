@@ -1,7 +1,6 @@
-# The header send when somebody uses /pvptop
-pvp_top_header: '&e========== &6PvPTop &e=========='
-# The format of a single line in the pvptop
-pvp_top_line: '&e<rank> - &6<player> &e - <kills> Kills'
+general:
+   check_for_updates: true
+   update_check_interval: 180
 # Database settings
 database:
    url: 'jdbc:mysql://localhost:3306/'
@@ -9,6 +8,18 @@ database:
    user: 'username'
    password: 'password'
    table_pvp_top: dspvptop_kills
+messages:
+  menu_header: '&8~~=={ &e&ldsPvptop &r&8}==~~'
+  menu_killdeath: ' &e/pvptop [killdeath|kd] [start]'
+  menu_kills: ' &e/pvptop [kills|k] [start]'
+  menu_deaths: ' &e/pvptop [deaths|d] [start]'
+  killdeath_header: '&8~~=={ &e&ldsPvptop kill/death rate&r&8}==~~'
+  kills_header: '&8~~=={ &e&ldsPvptop kills&r&8}==~~'
+  deaths_header: '&8~~=={ &e&ldsPvptop deaths&r&8}==~~'
+  killdeath_line: '<rank>. &e<player>&f: kd<killdeath> d<deaths> k<kills>'
+  kills_line: '<rank>. &e<player>&f: kd<killdeath> d<deaths> k<kills>'
+  deaths_line: '<rank>. &e<player>&f: kd<killdeath> d<deaths> k<kills>'
+  error_sql_exception: '&cSomething went wrong! Please contact an admin'
 # Permissions to give to players
 permission:
   # kills contains all the permissions someone gets when he/she has more or the same

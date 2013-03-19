@@ -1,5 +1,6 @@
 package denniss17.dsPvptop;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import denniss17.dsPvptop.db.DatabaseConnection;
+import denniss17.dsPvptop.VersionChecker;
 
 
 public class DS_Pvptop extends JavaPlugin{	
@@ -23,14 +25,26 @@ public class DS_Pvptop extends JavaPlugin{
 	/** Mapping from playername to PemissionsAttachment */
 	protected Map<String, PermissionAttachment> grantedPermissions;
 	
+	public static VersionChecker versionChecker;
+	
 	/** A class representing one item in the pvptop */
-	class PvptopItem {
+	class PlayerStats {
 		public int killCount;
+		public int deathCount;
 		public String playerName;
 
-		public PvptopItem(String playerName, int killCount) {
+		public PlayerStats(String playerName, int killCount, int deathCount) {
 			this.killCount = killCount;
+			this.deathCount = deathCount;
 			this.playerName = playerName;
+		}
+		
+		public float getKillDeathRate(){
+			if(deathCount==0){
+				return 0;
+			}else{
+				return (float)killCount/(float)deathCount;
+			}
 		}
 	}
 
@@ -49,6 +63,7 @@ public class DS_Pvptop extends JavaPlugin{
 		
 		grantedPermissions = new HashMap<String, PermissionAttachment>();
 		databaseConnection = new DatabaseConnection(this);
+		
 		try {
 			checkTable();
 		} catch (SQLException e) {
@@ -64,10 +79,16 @@ public class DS_Pvptop extends JavaPlugin{
 			getLogger().severe("Because this plugin depends on the database, it will now be DISABLED");
 			this.getServer().getPluginManager().disablePlugin(this);
 		}
+		
+		// Check for newer versions
+		if(this.getConfig().getBoolean("general.check_for_updates")){
+			versionChecker = new VersionChecker(this);
+			versionChecker.activate(this.getConfig().getInt("general.update_check_interval") * 60 * 20);
+		}
 	}
 	
 	private void checkTable() throws SQLException{
-		if(!databaseConnection.tableExists(this.getConfig().getString("database.table_pvp_top"), "id")){
+		if(!databaseConnection.tableExists(this.getConfig().getString("database.table_pvp_top"), "user")){
 			String query = "CREATE TABLE IF NOT EXISTS `" + 
 					this.getConfig().getString("database.table_pvp_top") + "` (  " +
 					"`user` varchar(32) NOT NULL, " +
@@ -80,42 +101,44 @@ public class DS_Pvptop extends JavaPlugin{
 		}
 	}
 	
-	private void handlePlayerKill(Entity killer, Player victim, Projectile weapon) {
-		if(killer instanceof Player){
-			// Weapon name
-			String weaponName;
-			if(weapon!=null){
-				weaponName = weapon.getType().name();
-			}else{
-				weaponName = ((Player)killer).getItemInHand().getType().name();
+	public void handlePlayerKill(Entity killer, Player victim) {
+		if(killer instanceof Player){			
+			PreparedStatement statement;
+			String query;
+			
+			// Update kill count for killer
+			query = "INSERT INTO `" + this.getConfig().getString("database.table_pvp_top") +
+					"` SET `user`=? `kills`=1 `deaths`=0 ON DUPLICATE KEY UPDATE `kills`=`kills`+1";
+			
+			try {
+				statement = databaseConnection.getConnection().prepareStatement(query);
+				statement.setString(1, ((Player)killer).getName().toLowerCase());
+				statement.executeUpdate();
+				//reloadPermissions((Player)killer);
+			} catch (SQLException e) {
+				handleSQLException(e);
 			}
 			
-			// Query
-			String query = "INSERT INTO `" + 
-					this.getConfig().getString("database.table_pvp_top") +
-					"` ( `id` , `killer` , `victim`, `weapon` , `timestamp`) VALUES ( NULL, '" + 
-						((Player)killer).getName().toLowerCase() + "', '" + 
-						victim.getName().toLowerCase() + "', '" +
-						weaponName +
-						"', CURRENT_TIMESTAMP);";
+			// Update death count for victim
+			query = "INSERT INTO `" + this.getConfig().getString("database.table_pvp_top") +
+					"` SET `user`=? `kills`=0 `deaths`=1 ON DUPLICATE KEY UPDATE `deaths`=`deaths`+1";
+			
 			try {
-				databaseConnection.executeUpdate(query);
-				reloadPermissions((Player)killer);
+				statement = databaseConnection.getConnection().prepareStatement(query);
+				statement.setString(1, ((Player)victim).getName().toLowerCase());
+				statement.executeUpdate();
+				//reloadPermissions((Player)victim);
 			} catch (SQLException e) {
 				handleSQLException(e);
 			}
 		}else if(killer instanceof Projectile){
 			// Recall function with shooter of projectile as killer
-			handlePlayerKill(((Projectile)killer).getShooter(), victim, (Projectile)killer);
+			handlePlayerKill(((Projectile)killer).getShooter(), victim);
 		}
 	}
 	
-	public void handlePlayerKill(Entity killer, Player victim){
-		this.handlePlayerKill(killer, victim, null);
-	}
-	
 	/** Reload permissions, called when a kill is added */
-	public void reloadPermissions(Player player){
+	/*public void reloadPermissions(Player player){
 		if(player==null) return;
 		
 		try {
@@ -132,9 +155,9 @@ public class DS_Pvptop extends JavaPlugin{
 		} catch (NumberFormatException e){
 			getLogger().warning("Misconfiguring in permission.pvp: NaN");
 		}
-	}
+	}*/
 	
-	public void addPermission(Player player, String permission){
+	/*public void addPermission(Player player, String permission){
 		if(!grantedPermissions.containsKey(player.getName())){
 			grantedPermissions.put(player.getName(), player.addAttachment(this, permission, true));
 		}
@@ -142,11 +165,11 @@ public class DS_Pvptop extends JavaPlugin{
 			grantedPermissions.get(player.getName()).setPermission(permission, true);
 			getLogger().info("Permission '" + permission + "' added to " + player.getName());
 		}
-	}
+	}*/
 	
 	public int getNumberOfKills(Player player) throws SQLException{
 		
-		String query = "SELECT killer, COUNT(victim) AS Count FROM `"
+		String query = "SELECT user, kills AS Count FROM `"
 				+ getConfig().getString("database.table_pvp_top")
 				+ "` WHERE killer='" + player.getName() + "';";
 		
@@ -162,47 +185,60 @@ public class DS_Pvptop extends JavaPlugin{
 		}
 	}
 	
-	public PvptopItem[] getDeathtop(int start, int amount) throws SQLException {
-		PvptopItem[] top = new PvptopItem[amount];
+	
+	public PlayerStats[] getDeathtop(int start) throws SQLException {
+		PlayerStats[] top = new PlayerStats[10];
 
-		String query = "SELECT victim, COUNT(killer) as count FROM `"
+		String query = "SELECT user, kills, deaths FROM `"
 				+ getConfig().getString("database.table_pvp_top")
-				+ "` GROUP BY victim ORDER BY COUNT(killer) DESC LIMIT "
-				+ start + ", " + amount + ";";
-
+				+ "` ORDER BY deaths DESC, kills DESC LIMIT "
+				+ start + ", 10;";
 		ResultSet result = databaseConnection.executeQuery(query);
 
 		int i = 0;
 		while (result.next()) {
-			top[i] = new PvptopItem(result.getString("victim"),
-					result.getInt("count"));
+			top[i] = new PlayerStats(result.getString("user"), result.getInt("kills"),result.getInt("deaths"));
 			i++;
 		}
 
 		databaseConnection.close();
-
 		return top;
 	}
 	
-	public PvptopItem[] getKilltop(int start, int amount) throws SQLException {
-		PvptopItem[] top = new PvptopItem[amount];
+	public PlayerStats[] getKilltop(int start) throws SQLException {
+		PlayerStats[] top = new PlayerStats[10];
 
-		String query = "SELECT killer, COUNT(victim) as count FROM `"
+		String query = "SELECT user, kills, deaths FROM `"
 				+ getConfig().getString("database.table_pvp_top")
-				+ "` GROUP BY killer ORDER BY COUNT(victim) DESC LIMIT "
-				+ start + ", " + amount + ";";
-
+				+ "` ORDER BY kills DESC, deaths ASC LIMIT "
+				+ start + ", 10;";
 		ResultSet result = databaseConnection.executeQuery(query);
 
 		int i = 0;
 		while (result.next()) {
-			top[i] = new PvptopItem(result.getString("killer"),
-					result.getInt("count"));
+			top[i] = new PlayerStats(result.getString("user"), result.getInt("kills"),result.getInt("deaths"));
 			i++;
 		}
 
 		databaseConnection.close();
+		return top;
+	}
+	
+	public PlayerStats[] getKillDeathRatetop(int start) throws SQLException {
+		PlayerStats[] top = new PlayerStats[10];
 
+		String query = "SELECT user, kills, deaths, 2*kills/((deaths + .5) + ABS(deaths - .5)) AS rate FROM `"
+				+ getConfig().getString("database.table_pvp_top")
+				+ "` ORDER BY rate DESC LIMIT "
+				+ start + ", 10;";
+		ResultSet result = databaseConnection.executeQuery(query);
+		int i = 0;
+		while (result.next()) {
+			top[i] = new PlayerStats(result.getString("user"), result.getInt("kills"),result.getInt("deaths"));
+			i++;
+		}
+
+		databaseConnection.close();
 		return top;
 	}
 

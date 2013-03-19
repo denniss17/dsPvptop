@@ -6,7 +6,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-import denniss17.dsPvptop.DS_Pvptop.PvptopItem;
+import denniss17.dsPvptop.DS_Pvptop.PlayerStats;
 
 public class CommandExec implements CommandExecutor{
 
@@ -19,37 +19,112 @@ public class CommandExec implements CommandExecutor{
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String commandlabel, String[] args) {
 		if(cmd.getName().equals("pvptop")){
-			return commandPvptop(sender, cmd, args);	
+			if(args.length==0){
+				sendMenu(sender);
+				return true;
+			}else if(args[0].equals("kd")){
+				return commandPvptopKillDeath(sender, cmd, commandlabel, args);
+			}else if(args[0].equals("k")){
+				return commandPvptopKills(sender, cmd, commandlabel, args);
+			}else if(args[0].equals("d")){
+				return commandPvptopDeaths(sender, cmd, commandlabel, args);
+			}	
 		}
 		return false;		
 	}
 	
-	private boolean commandPvptop(CommandSender sender, Command cmd, String[] args){
-		int start = 0;
-		if(args.length>0){
+	private String parsePvptopLine(String message, PlayerStats playerstats, int rank){
+		return message
+				.replace("<rank>", String.valueOf(rank))
+				.replace("<player>", playerstats.playerName)
+				.replace("<kills>", String.valueOf(playerstats.killCount))
+				.replace("<deaths>", String.valueOf(playerstats.deathCount))
+				.replace("<killdeath>", String.valueOf(playerstats.getKillDeathRate()));
+	}
+	
+	private void sendMenu(CommandSender sender){
+		plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_header"));
+		plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_killdeath"));
+		plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_kills"));
+		plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_deaths"));
+	}
+	
+	private boolean commandPvptopKillDeath(CommandSender sender, Command cmd, String commandlabel, String[] args){
+		int start = 1, index = 1;
+		// Parse additional argument
+		if(args.length>1){
 			try{
-				start = Integer.parseInt(args[0]);					
+				start = Integer.parseInt(args[1]);					
 			}catch(NumberFormatException e){
-				return false;
 			}
 		}
-		try {
-			PvptopItem[] pvptop = plugin.getPvptop(start,10);
-			int index = start+1;
-			sender.sendMessage(ChatStyler.setMessageColor(plugin.getConfig().getString("pvp_top_header")));
-			for(PvptopItem item : pvptop){
-				if(item!=null){
-					sender.sendMessage(ChatStyler.setMessageColor(
-							plugin.getConfig().getString("pvp_top_line")
-							.replace("<rank>", String.valueOf(index))
-							.replace("<player>", item.playerName)
-							.replace("<kills>", String.valueOf(item.killCount))
-					));
+		// Get top
+		try{
+			PlayerStats[] top = plugin.getKillDeathRatetop(start);
+			// Send messages
+			plugin.sendMessage(sender, plugin.getConfig().getString("messages.killdeath_header"));
+			for(PlayerStats playerStats : top){
+				if(playerStats!=null){
+					plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("message.killdeath_line"), playerStats, index));
 				}
 				index++;
 			}
-			
 		} catch (SQLException e) {
+			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_sql_exception"));
+			plugin.handleSQLException(e);
+		}
+		return true;
+	}
+	
+	private boolean commandPvptopKills(CommandSender sender, Command cmd, String commandlabel, String[] args){
+		int start = 1, index = 1;
+		// Parse additional argument
+		if(args.length>1){
+			try{
+				start = Integer.parseInt(args[1]);					
+			}catch(NumberFormatException e){
+			}
+		}
+		// Get top
+		try{
+			PlayerStats[] top = plugin.getKilltop(start);
+			// Send messages
+			plugin.sendMessage(sender, plugin.getConfig().getString("messages.kills_header"));
+			for(PlayerStats playerStats : top){
+				if(playerStats!=null){
+					plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("message.kills_line"), playerStats, index));
+				}
+				index++;
+			}
+		} catch (SQLException e) {
+			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_sql_exception"));
+			plugin.handleSQLException(e);
+		}
+		return true;
+	}
+	
+	private boolean commandPvptopDeaths(CommandSender sender, Command cmd, String commandlabel, String[] args){
+		int start = 1, index = 1;
+		// Parse additional argument
+		if(args.length>1){
+			try{
+				start = Integer.parseInt(args[1]);					
+			}catch(NumberFormatException e){
+			}
+		}
+		// Get top
+		try{
+			PlayerStats[] top = plugin.getDeathtop(start);
+			// Send messages
+			plugin.sendMessage(sender, plugin.getConfig().getString("messages.deaths_header"));
+			for(PlayerStats playerStats : top){
+				if(playerStats!=null){
+					plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("message.deaths_line"), playerStats, index));
+				}
+				index++;
+			}
+		} catch (SQLException e) {
+			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_sql_exception"));
 			plugin.handleSQLException(e);
 		}
 		return true;
