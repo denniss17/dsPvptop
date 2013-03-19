@@ -39,7 +39,7 @@ public class CommandExec implements CommandExecutor{
 				.replace("<player>", playerstats.playerName)
 				.replace("<kills>", String.valueOf(playerstats.killCount))
 				.replace("<deaths>", String.valueOf(playerstats.deathCount))
-				.replace("<killdeath>", String.valueOf(playerstats.getKillDeathRate()));
+				.replace("<killdeath>", String.format("%.2f", playerstats.getKillDeathRate()));
 	}
 	
 	private void sendMenu(CommandSender sender){
@@ -60,12 +60,12 @@ public class CommandExec implements CommandExecutor{
 		}
 		// Get top
 		try{
-			PlayerStats[] top = plugin.getKillDeathRatetop(start);
+			PlayerStats[] top = plugin.getKillDeathRatetop(start-1);
 			// Send messages
 			plugin.sendMessage(sender, plugin.getConfig().getString("messages.killdeath_header"));
 			for(PlayerStats playerStats : top){
 				if(playerStats!=null){
-					plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("message.killdeath_line"), playerStats, index));
+					plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("messages.killdeath_line"), playerStats, index));
 				}
 				index++;
 			}
@@ -87,12 +87,12 @@ public class CommandExec implements CommandExecutor{
 		}
 		// Get top
 		try{
-			PlayerStats[] top = plugin.getKilltop(start);
+			PlayerStats[] top = plugin.getKilltop(start-1);
 			// Send messages
 			plugin.sendMessage(sender, plugin.getConfig().getString("messages.kills_header"));
 			for(PlayerStats playerStats : top){
 				if(playerStats!=null){
-					plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("message.kills_line"), playerStats, index));
+					plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("messages.kills_line"), playerStats, index));
 				}
 				index++;
 			}
@@ -114,12 +114,12 @@ public class CommandExec implements CommandExecutor{
 		}
 		// Get top
 		try{
-			PlayerStats[] top = plugin.getDeathtop(start);
+			PlayerStats[] top = plugin.getDeathtop(start-1);
 			// Send messages
 			plugin.sendMessage(sender, plugin.getConfig().getString("messages.deaths_header"));
 			for(PlayerStats playerStats : top){
 				if(playerStats!=null){
-					plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("message.deaths_line"), playerStats, index));
+					plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("messages.deaths_line"), playerStats, index));
 				}
 				index++;
 			}

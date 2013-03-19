@@ -34,7 +34,7 @@ public class DatabaseConnection{
 		return this.connection;
 	}
 	
-	private void connect() throws SQLException{		
+	public void connect() throws SQLException{		
 		if(url==null||username==null||password==null||database==null){
 			throw new SQLException("One of the settings is not set!");
 		}

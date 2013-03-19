@@ -41,7 +41,7 @@ public class DS_Pvptop extends JavaPlugin{
 		
 		public float getKillDeathRate(){
 			if(deathCount==0){
-				return 0;
+				return killCount * 2;
 			}else{
 				return (float)killCount/(float)deathCount;
 			}
@@ -108,9 +108,10 @@ public class DS_Pvptop extends JavaPlugin{
 			
 			// Update kill count for killer
 			query = "INSERT INTO `" + this.getConfig().getString("database.table_pvp_top") +
-					"` SET `user`=? `kills`=1 `deaths`=0 ON DUPLICATE KEY UPDATE `kills`=`kills`+1";
+					"`(`kills`,`deaths`,`user`) VALUES(1,0,?) ON DUPLICATE KEY UPDATE `kills`=`kills`+1";
 			
 			try {
+				databaseConnection.connect();
 				statement = databaseConnection.getConnection().prepareStatement(query);
 				statement.setString(1, ((Player)killer).getName().toLowerCase());
 				statement.executeUpdate();
@@ -121,13 +122,20 @@ public class DS_Pvptop extends JavaPlugin{
 			
 			// Update death count for victim
 			query = "INSERT INTO `" + this.getConfig().getString("database.table_pvp_top") +
-					"` SET `user`=? `kills`=0 `deaths`=1 ON DUPLICATE KEY UPDATE `deaths`=`deaths`+1";
+					"`(`kills`,`deaths`,`user`) VALUES(0,1,?) ON DUPLICATE KEY UPDATE `deaths`=`deaths`+1";
 			
 			try {
 				statement = databaseConnection.getConnection().prepareStatement(query);
 				statement.setString(1, ((Player)victim).getName().toLowerCase());
 				statement.executeUpdate();
 				//reloadPermissions((Player)victim);
+			} catch (SQLException e) {
+				handleSQLException(e);
+			}
+			
+			try {
+				// Close connection
+				databaseConnection.close();
 			} catch (SQLException e) {
 				handleSQLException(e);
 			}
@@ -227,7 +235,7 @@ public class DS_Pvptop extends JavaPlugin{
 	public PlayerStats[] getKillDeathRatetop(int start) throws SQLException {
 		PlayerStats[] top = new PlayerStats[10];
 
-		String query = "SELECT user, kills, deaths, 2*kills/((deaths + .5) + ABS(deaths - .5)) AS rate FROM `"
+		String query = "SELECT user, kills, deaths, (2*kills/((deaths + .5) + ABS(deaths - .5))) AS rate FROM `"
 				+ getConfig().getString("database.table_pvp_top")
 				+ "` ORDER BY rate DESC LIMIT "
 				+ start + ", 10;";

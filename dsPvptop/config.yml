@@ -13,12 +13,12 @@ messages:
   menu_killdeath: ' &e/pvptop [killdeath|kd] [start]'
   menu_kills: ' &e/pvptop [kills|k] [start]'
   menu_deaths: ' &e/pvptop [deaths|d] [start]'
-  killdeath_header: '&8~~=={ &e&ldsPvptop kill/death rate&r&8}==~~'
-  kills_header: '&8~~=={ &e&ldsPvptop kills&r&8}==~~'
-  deaths_header: '&8~~=={ &e&ldsPvptop deaths&r&8}==~~'
-  killdeath_line: '<rank>. &e<player>&f: kd<killdeath> d<deaths> k<kills>'
-  kills_line: '<rank>. &e<player>&f: kd<killdeath> d<deaths> k<kills>'
-  deaths_line: '<rank>. &e<player>&f: kd<killdeath> d<deaths> k<kills>'
+  killdeath_header: '&8=========={ &e&ldsPvptop kill/death rate&r&8}=========='
+  kills_header: '&8=========={ &e&ldsPvptop kills&r&8}=========='
+  deaths_header: '&8=========={ &e&ldsPvptop deaths&r&8=========='
+  killdeath_line: '<rank> -  &e<player>&f - <killdeath> &7(<kills> kills, <deaths> deaths)'
+  kills_line: '<rank> -  &e<player>&f - <kills> kills &7(<deaths> deaths, <killdeath> k/d)'
+  deaths_line: '<rank> -  &e<player>&f - <deaths> deaths &7(<kills> kills, <killdeath> k/d)'
   error_sql_exception: '&cSomething went wrong! Please contact an admin'
 # Permissions to give to players
 permission:
