@@ -22,13 +22,15 @@ public class CommandExec implements CommandExecutor{
 			if(args.length==0){
 				sendMenu(sender);
 				return true;
-			}else if(args[0].equals("kd")){
+			}else if(args[0].equals("kd") || args[0].equals("killdeath")){
 				return commandPvptopKillDeath(sender, cmd, commandlabel, args);
-			}else if(args[0].equals("k")){
+			}else if(args[0].equals("k") || args[0].equals("kills")){
 				return commandPvptopKills(sender, cmd, commandlabel, args);
-			}else if(args[0].equals("d")){
+			}else if(args[0].equals("d") || args[0].equals("deaths")){
 				return commandPvptopDeaths(sender, cmd, commandlabel, args);
-			}	
+			}else if(args[0].equals("reload")){
+				plugin.reloadConfig();
+			}
 		}
 		return false;		
 	}

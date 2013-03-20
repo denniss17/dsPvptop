@@ -48,6 +48,7 @@ public class DS_Pvptop extends JavaPlugin{
 		}
 	}
 
+	/** Enable the plugin */
 	public void onEnable(){
 		// Register listeners
 		Listener playerlistener = new PlayerListener(this);
@@ -87,6 +88,10 @@ public class DS_Pvptop extends JavaPlugin{
 		}
 	}
 	
+	/**
+	 * Check if the table exists
+	 * @throws SQLException
+	 */
 	private void checkTable() throws SQLException{
 		if(!databaseConnection.tableExists(this.getConfig().getString("database.table_pvp_top"), "user")){
 			String query = "CREATE TABLE IF NOT EXISTS `" + 
@@ -101,6 +106,11 @@ public class DS_Pvptop extends JavaPlugin{
 		}
 	}
 	
+	/**
+	 * Handle a kill (add it to the database)
+	 * @param killer The killer
+	 * @param victim The victim
+	 */
 	public void handlePlayerKill(Entity killer, Player victim) {
 		if(killer instanceof Player){			
 			PreparedStatement statement;
@@ -115,7 +125,7 @@ public class DS_Pvptop extends JavaPlugin{
 				statement = databaseConnection.getConnection().prepareStatement(query);
 				statement.setString(1, ((Player)killer).getName().toLowerCase());
 				statement.executeUpdate();
-				//reloadPermissions((Player)killer);
+				reloadPermissions((Player)killer);
 			} catch (SQLException e) {
 				handleSQLException(e);
 			}
@@ -128,7 +138,7 @@ public class DS_Pvptop extends JavaPlugin{
 				statement = databaseConnection.getConnection().prepareStatement(query);
 				statement.setString(1, ((Player)victim).getName().toLowerCase());
 				statement.executeUpdate();
-				//reloadPermissions((Player)victim);
+				reloadPermissions((Player)victim);
 			} catch (SQLException e) {
 				handleSQLException(e);
 			}
@@ -145,27 +155,54 @@ public class DS_Pvptop extends JavaPlugin{
 		}
 	}
 	
-	/** Reload permissions, called when a kill is added */
-	/*public void reloadPermissions(Player player){
+	/**
+	 * Reload the permissions of this player
+	 * (Called when a kill is added or a player joins)
+	 * @param player The player to reload the perms for
+	 */
+	public void reloadPermissions(Player player){
 		if(player==null) return;
 		
 		try {
-			int numberOfKills = getNumberOfKills(player);
+			PlayerStats playerStats = getPlayerStats(player);
+			float killdeath = playerStats.getKillDeathRate();
+			
 			if(getConfig().contains("permission.kills")){
 				for(String count: getConfig().getConfigurationSection("permission.kills").getKeys(false)){
-					if(numberOfKills >= Integer.parseInt(count)){
+					if(playerStats.killCount >= Integer.parseInt(count)){
 						addPermission(player, getConfig().getString("permission.kills." + count));			
+					}
+				}
+			}
+			
+			if(getConfig().contains("permission.deaths")){
+				for(String count: getConfig().getConfigurationSection("permission.deaths").getKeys(false)){
+					if(playerStats.deathCount < Integer.parseInt(count)){
+						addPermission(player, getConfig().getString("permission.deaths." + count));			
+					}else{
+						removePermission(player, getConfig().getString("permission.deaths." + count));
+					}
+				}
+			}
+			
+			if(getConfig().contains("permission.killdeath")){
+				for(String count: getConfig().getConfigurationSection("permission.killdeath").getKeys(false)){
+					if(killdeath >= Integer.parseInt(count)){
+						addPermission(player, getConfig().getString("permission.killdeath." + count));			
+					}else{
+						// Remove, because kill/death-rate can be lowered
+						removePermission(player, getConfig().getString("permission.killdeath." + count));
 					}
 				}
 			}
 		} catch (SQLException e) {
 			handleSQLException(e);
 		} catch (NumberFormatException e){
-			getLogger().warning("Misconfiguring in permission.pvp: NaN");
+			getLogger().warning("Misconfiguring in permission.* (config.yml): One item is not a number");
 		}
-	}*/
+	}
 	
-	/*public void addPermission(Player player, String permission){
+	public void addPermission(Player player, String permission){
 		if(!grantedPermissions.containsKey(player.getName())){
 			grantedPermissions.put(player.getName(), player.addAttachment(this, permission, true));
 		}
@@ -173,24 +210,36 @@ public class DS_Pvptop extends JavaPlugin{
 			grantedPermissions.get(player.getName()).setPermission(permission, true);
 			getLogger().info("Permission '" + permission + "' added to " + player.getName());
 		}
-	}*/
+	}
 	
-	public int getNumberOfKills(Player player) throws SQLException{
-		
-		String query = "SELECT user, kills AS Count FROM `"
-				+ getConfig().getString("database.table_pvp_top")
-				+ "` WHERE killer='" + player.getName() + "';";
-		
-		ResultSet resultSet = databaseConnection.executeQuery(query);
-		
-		if(resultSet.next()){
-			int result = resultSet.getInt("Count");
-			databaseConnection.close();
-			return result;
-		}else{
-			databaseConnection.close();
-			return 0;
+	public void removePermission(Player player, String permission){
+		if(grantedPermissions.containsKey(player.getName())){
+			grantedPermissions.get(player.getName()).unsetPermission(permission);
 		}
+	}
+	
+	public PlayerStats getPlayerStats(Player player) throws SQLException{
+		PreparedStatement statement;
+		String query;
+		PlayerStats result;
+		
+		// Update kill count for killer
+		query = "SELECT * FROM `" + this.getConfig().getString("database.table_pvp_top") +
+				"` WHERE `user`=?;";
+		
+		databaseConnection.connect();
+		statement = databaseConnection.getConnection().prepareStatement(query);
+		statement.setString(1, player.getName().toLowerCase());
+		ResultSet resultset = statement.executeQuery();
+		
+		if(resultset.next()){
+			result =  new PlayerStats(player.getName(), resultset.getInt("kills"), resultset.getInt("deaths"));
+		}else{
+			result =  new PlayerStats(player.getName(), 0, 0);
+		}
+		
+		databaseConnection.close();
+		return result;
 	}
 	
 	
@@ -199,7 +248,7 @@ public class DS_Pvptop extends JavaPlugin{
 
 		String query = "SELECT user, kills, deaths FROM `"
 				+ getConfig().getString("database.table_pvp_top")
-				+ "` ORDER BY deaths DESC, kills DESC LIMIT "
+				+ "` ORDER BY deaths ASC, kills DESC LIMIT "
 				+ start + ", 10;";
 		ResultSet result = databaseConnection.executeQuery(query);
 

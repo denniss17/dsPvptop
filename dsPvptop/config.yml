@@ -1,32 +1,48 @@
+# ==== Config of dsPvptop ====
+# For more info and explanation, go to
+# https://github.com/denniss17/dsPvptop/blob/master/dsPvptop/config.yml
 general:
+   # Should the plugin check for updates automaticly?
    check_for_updates: true
+   # Time in minutes between two update checks
    update_check_interval: 180
 # Database settings
 database:
+   # URL of the database
    url: 'jdbc:mysql://localhost:3306/'
    database: 'database'
    user: 'username'
    password: 'password'
-   table_pvp_top: dspvptop_kills
-messages:
-  menu_header: '&8~~=={ &e&ldsPvptop &r&8}==~~'
-  menu_killdeath: ' &e/pvptop [killdeath|kd] [start]'
-  menu_kills: ' &e/pvptop [kills|k] [start]'
-  menu_deaths: ' &e/pvptop [deaths|d] [start]'
-  killdeath_header: '&8=========={ &e&ldsPvptop kill/death rate&r&8}=========='
-  kills_header: '&8=========={ &e&ldsPvptop kills&r&8}=========='
-  deaths_header: '&8=========={ &e&ldsPvptop deaths&r&8=========='
-  killdeath_line: '<rank> -  &e<player>&f - <killdeath> &7(<kills> kills, <deaths> deaths)'
-  kills_line: '<rank> -  &e<player>&f - <kills> kills &7(<deaths> deaths, <killdeath> k/d)'
-  deaths_line: '<rank> -  &e<player>&f - <deaths> deaths &7(<kills> kills, <killdeath> k/d)'
-  error_sql_exception: '&cSomething went wrong! Please contact an admin'
+   # The table in which to store kills and deaths
+   table_pvp_top: dspvptop
+messages: 
+   # The menu when somebody uses only /pvptop
+   menu_header: '&8~~=={ &e&ldsPvptop &r&8}==~~'
+   menu_killdeath: ' &e/pvptop [killdeath|kd] [start]'
+   menu_kills: ' &e/pvptop [kills|k] [start]'
+   menu_deaths: ' &e/pvptop [deaths|d] [start]'
+   # The markup for the headers of the different tops
+   killdeath_header: '&8=========={ &e&ldsPvptop kill/death rate&r&8}=========='
+   kills_header: '&8=========={ &e&ldsPvptop kills&r&8}=========='
+   deaths_header: '&8=========={ &e&ldsPvptop deaths&r&8=========='
+   # The format of a single lines for the different tops
+   # Possible tags: <rank> <player> <killdeath> <kills> <deaths>
+   killdeath_line: '<rank> -  &e<player>&f - <killdeath> &7(<kills> kills, <deaths> deaths)'
+   kills_line: '<rank> -  &e<player>&f - <kills> kills &7(<deaths> deaths, <killdeath> k/d)'
+   deaths_line: '<rank> -  &e<player>&f - <deaths> deaths &7(<kills> kills, <killdeath> k/d)'
+   # The message a player gets when for example calling /pvptop kd and
+   # a SQL exception occurs
+   error_sql_exception: '&cSomething went wrong! Please contact an admin'
 # Permissions to give to players
 permission:
-  # kills contains all the permissions someone gets when he/she has more or the same
-  # amount of kills as put in front of the : character. Format: <numberOfKills>: <permission>
+  # Permissions to give to players if the have more kills, 
+  # or higher kill/death-rate or lower amount of deaths than the number given.
+  # format: '<number>': permissions
   # IMPORTANT The number needs to be put between quotes (example: '100')
-  kills:
-    # example config down here
-    #'50': title.pvp50
-    #'100': title.pvp100
-    #'200': title.pvp200
+  # Example config:
+  # kills:
+  #    '100': title.pvp100
+  # killdeath:
+  #    '5': worldguard.elitepvpman
+  # deaths:  (note, you get this permission if you have LESS deaths then the number given)
+  #    '3': title.survivor
