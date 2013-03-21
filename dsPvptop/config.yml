@@ -17,16 +17,16 @@ database:
    table_pvp_top: dspvptop
 messages: 
    # The menu when somebody uses only /pvptop
-   menu_header: '&8~~=={ &e&ldsPvptop &r&8}==~~'
+   menu_header: '&8~~=={ &e&ldsPvPtop &r&8}==~~'
    menu_killdeath: ' &e/pvptop killdeath|kd [start] &rShow kill/death top'
    menu_kills: ' &e/pvptop kills|k [start] &rShow killtop'
    menu_deaths: ' &e/pvptop deaths|d [start] &rShow deathtop'
    menu_me: ' &e/pvptop me &rShow your stats'
    menu_reload: ' &e/pvptop reload &rReload config and permissions'
    # The markup for the headers of the different tops
-   killdeath_header: '&8=========={ &e&ldsPvptop kill/death rate&r &8}=========='
-   kills_header: '&8=========={ &e&ldsPvptop kills&r &8}=========='
-   deaths_header: '&8=========={ &e&ldsPvptop deaths&r &8}=========='
+   killdeath_header: '&8=========={ &e&ldsPvPtop kill/death rate&r &8}=========='
+   kills_header: '&8=========={ &e&ldsPvPtop kills&r &8}=========='
+   deaths_header: '&8=========={ &e&ldsPvPtop deaths&r &8}=========='
    # The format of a single lines for the different tops
    # Possible tags: <rank> <player> <killdeath> <kills> <deaths>
    killdeath_line: '<rank> -  &e<player>&f - <killdeath> &7(<kills> kills, <deaths> deaths)'
@@ -36,7 +36,7 @@ messages:
    me_line: 'Your stats: &e<kills> &fkills - &e<deaths> &fdeaths - &e<killdeath> &fkill/death'
    # The message a player gets when for example calling /pvptop kd and
    # a SQL exception occurs
-   error_sql_exception: '&cSomething went wrong! Please contact an admin'
+   error_sql_exception: '&8[&ePvPtop&8] &cSomething went wrong! Please contact an admin'
    error_no_permission: '&8[&ePvPtop&8] &cYou have no permission to do this!'
    reloaded: '&8[&ePvPtop&8] &fConfig and permissions reloaded'
 # Permissions to give to players
