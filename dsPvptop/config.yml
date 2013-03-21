@@ -18,31 +18,37 @@ database:
 messages: 
    # The menu when somebody uses only /pvptop
    menu_header: '&8~~=={ &e&ldsPvptop &r&8}==~~'
-   menu_killdeath: ' &e/pvptop [killdeath|kd] [start]'
-   menu_kills: ' &e/pvptop [kills|k] [start]'
-   menu_deaths: ' &e/pvptop [deaths|d] [start]'
+   menu_killdeath: ' &e/pvptop killdeath|kd [start] &rShow kill/death top'
+   menu_kills: ' &e/pvptop kills|k [start] &rShow killtop'
+   menu_deaths: ' &e/pvptop deaths|d [start] &rShow deathtop'
+   menu_me: ' &e/pvptop me &rShow your stats'
    # The markup for the headers of the different tops
-   killdeath_header: '&8=========={ &e&ldsPvptop kill/death rate&r&8}=========='
-   kills_header: '&8=========={ &e&ldsPvptop kills&r&8}=========='
-   deaths_header: '&8=========={ &e&ldsPvptop deaths&r&8=========='
+   killdeath_header: '&8=========={ &e&ldsPvptop kill/death rate&r &8}=========='
+   kills_header: '&8=========={ &e&ldsPvptop kills&r &8}=========='
+   deaths_header: '&8=========={ &e&ldsPvptop deaths&r &8}=========='
    # The format of a single lines for the different tops
    # Possible tags: <rank> <player> <killdeath> <kills> <deaths>
    killdeath_line: '<rank> -  &e<player>&f - <killdeath> &7(<kills> kills, <deaths> deaths)'
    kills_line: '<rank> -  &e<player>&f - <kills> kills &7(<deaths> deaths, <killdeath> k/d)'
    deaths_line: '<rank> -  &e<player>&f - <deaths> deaths &7(<kills> kills, <killdeath> k/d)'
+   # The format of the message you get when calling /pvptop me
+   me_line: 'Your stats: &e<kills> &fkills - &e<deaths> &fdeaths - &e<killdeath> &fkill/death'
    # The message a player gets when for example calling /pvptop kd and
    # a SQL exception occurs
    error_sql_exception: '&cSomething went wrong! Please contact an admin'
 # Permissions to give to players
 permission:
-  # Permissions to give to players if the have more kills, 
-  # or higher kill/death-rate or lower amount of deaths than the number given.
-  # format: '<number>': permissions
-  # IMPORTANT The number needs to be put between quotes (example: '100')
+  # Permissions to give to players if the given condition is met
+  # Format: '<condition>': permission
+  # Possible conditions:
+  # '>10' or '10'  - The permission is given if you have more than ten kills, deaths etc.
+  # '<10'          - The permission is given if you have less than ten kills, deaths etc.
+  # Floats are also possible, but use a comma (',') as divider (so '2,5' instead of '2.5').
+  # IMPORTANT The condition needs to be put between quotes (example: '100')
   # Example config:
   # kills:
-  #    '100': title.pvp100
+  #    '>100': title.pvp100   # Granted if more than 100 kills
   # killdeath:
-  #    '5': worldguard.elitepvpman
-  # deaths:  (note, you get this permission if you have LESS deaths then the number given)
-  #    '3': title.survivor
+  #    '2,5': worldguard.elitepvpman   # Granted if kill/death rate is higher than 2.5
+  # deaths:
+  #    '<5': regions.hospital    # Granted if you have less then 5 deaths

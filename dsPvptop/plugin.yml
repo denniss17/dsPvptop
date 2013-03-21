@@ -9,11 +9,11 @@ commands:
       usage: /<command> <start>
       permission: dspvptop.pvptop
 permissions:
-   dspvptop.*:
-      description: Gives access to all commands
+   dspvptop.admin:
+      description: Access to all commands
       default: op
       children:
-         dspvptop.pvptop: true
-   dspvptop.pvptop:
+         dspvptop.player: true
+   dspvptop.player:
       description: Permission to use /pvptop
       default: true

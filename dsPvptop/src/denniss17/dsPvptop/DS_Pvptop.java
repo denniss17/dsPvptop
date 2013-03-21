@@ -155,6 +155,34 @@ public class DS_Pvptop extends JavaPlugin{
 		}
 	}
 	
+	public void checkPermission(Player player, float value, String condition, String permission){
+		float c;
+		try{
+			// komma fix
+			condition = condition.replace(',', '.');
+			if(condition.charAt(0) == '<'){
+				c = Float.parseFloat(condition.substring(1));
+				
+				if(value < c){
+					addPermission(player, permission);			
+				}else{
+					removePermission(player, permission);
+				}
+			}else{
+				c = condition.charAt(0) == '>' ? Float.parseFloat(condition.substring(1)) : Float.parseFloat(condition);
+				
+				if(value > c){
+					addPermission(player, permission);			
+				}else{
+					removePermission(player, permission);
+				}
+				
+			}
+		} catch (NumberFormatException e){
+			getLogger().warning("Misconfiguring in permission.* (config.yml): '" + condition + "' is not a number");
+		}
+	}
+	
 	/**
 	 * Reload the permissions of this player
 	 * (Called when a kill is added or a player joins)
@@ -167,38 +195,27 @@ public class DS_Pvptop extends JavaPlugin{
 			PlayerStats playerStats = getPlayerStats(player);
 			float killdeath = playerStats.getKillDeathRate();
 			
+			getLogger().info(playerStats.playerName + " d:" +  playerStats.deathCount + " k:" +   playerStats.killCount + " kd:" +   killdeath);
+			
 			if(getConfig().contains("permission.kills")){
-				for(String count: getConfig().getConfigurationSection("permission.kills").getKeys(false)){
-					if(playerStats.killCount >= Integer.parseInt(count)){
-						addPermission(player, getConfig().getString("permission.kills." + count));			
-					}
+				for(String condition: getConfig().getConfigurationSection("permission.kills").getKeys(false)){
+					checkPermission(player, playerStats.killCount,  condition, getConfig().getString("permission.kills." + condition));
 				}
 			}
 			
 			if(getConfig().contains("permission.deaths")){
-				for(String count: getConfig().getConfigurationSection("permission.deaths").getKeys(false)){
-					if(playerStats.deathCount < Integer.parseInt(count)){
-						addPermission(player, getConfig().getString("permission.deaths." + count));			
-					}else{
-						removePermission(player, getConfig().getString("permission.deaths." + count));
-					}
+				for(String condition: getConfig().getConfigurationSection("permission.deaths").getKeys(false)){
+					checkPermission(player, playerStats.killCount,  condition, getConfig().getString("permission.deaths." + condition));
 				}
 			}
 			
 			if(getConfig().contains("permission.killdeath")){
-				for(String count: getConfig().getConfigurationSection("permission.killdeath").getKeys(false)){
-					if(killdeath >= Integer.parseInt(count)){
-						addPermission(player, getConfig().getString("permission.killdeath." + count));			
-					}else{
-						// Remove, because kill/death-rate can be lowered
-						removePermission(player, getConfig().getString("permission.killdeath." + count));
-					}
+				for(String condition: getConfig().getConfigurationSection("permission.killdeath").getKeys(false)){
+					checkPermission(player, playerStats.killCount,  condition, getConfig().getString("permission.killdeath." + condition));
 				}
 			}
 		} catch (SQLException e) {
 			handleSQLException(e);
-		} catch (NumberFormatException e){
-			getLogger().warning("Misconfiguring in permission.* (config.yml): One item is not a number");
 		}
 	}
 	

@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import denniss17.dsPvptop.DS_Pvptop.PlayerStats;
 
@@ -28,6 +29,8 @@ public class CommandExec implements CommandExecutor{
 				return commandPvptopKills(sender, cmd, commandlabel, args);
 			}else if(args[0].equals("d") || args[0].equals("deaths")){
 				return commandPvptopDeaths(sender, cmd, commandlabel, args);
+			}else if(args[0].equals("me")){
+				return commandPvptopMe(sender, cmd, commandlabel, args);
 			}else if(args[0].equals("reload")){
 				plugin.reloadConfig();
 			}
@@ -49,6 +52,7 @@ public class CommandExec implements CommandExecutor{
 		plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_killdeath"));
 		plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_kills"));
 		plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_deaths"));
+		plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_me"));
 	}
 	
 	private boolean commandPvptopKillDeath(CommandSender sender, Command cmd, String commandlabel, String[] args){
@@ -130,6 +134,27 @@ public class CommandExec implements CommandExecutor{
 			plugin.handleSQLException(e);
 		}
 		return true;
+	}
+	
+	private boolean commandPvptopMe(CommandSender sender, Command cmd, String commandlabel, String[] args){
+		if(sender instanceof Player){
+			try {
+				PlayerStats playerStats = plugin.getPlayerStats((Player)sender);
+				if(playerStats!=null){
+					plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("messages.me_line"), playerStats, 0));
+				}else{
+					// Not found in database => Send message with 0 kills and 0 deaths
+					plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("messages.me_line"), plugin.new PlayerStats(((Player)sender).getName(), 0, 0), 0));
+				}
+				
+			} catch (SQLException e) {
+				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_sql_exception"));
+				plugin.handleSQLException(e);
+			}
+		}else{
+			plugin.sendMessage(sender, "&cThe console doesn't have kills or deaths :P");
+		}
+		return true;		
 	}
 
 }
