@@ -39,6 +39,7 @@ messages:
    error_sql_exception: '&8[&ePvPtop&8] &cSomething went wrong! Please contact an admin'
    error_no_permission: '&8[&ePvPtop&8] &cYou have no permission to do this!'
    reloaded: '&8[&ePvPtop&8] &fConfig and permissions reloaded'
+   update_notification: '&8[&ePvPtop&8] &eThere is a new version (&f{version}&e, current: &f{current}&e) available. Download it here: {website}'
 # Permissions to give to players
 permission:
   # Permissions to give to players if the given condition is met
