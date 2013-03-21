@@ -8,7 +8,7 @@ commands:
    pvptop:
       description: Shows the pvp top
       usage: /<command> <start>
-      permission: ds_pvptop.pvptop
+      permission: ds_pvptop.player
 permissions:
    ds_pvptop.admin:
       description: Access to all commands
