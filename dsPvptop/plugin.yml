@@ -7,13 +7,13 @@ commands:
    pvptop:
       description: Shows the pvp top
       usage: /<command> <start>
-      permission: dspvptop.pvptop
+      permission: ds_pvptop.pvptop
 permissions:
-   dspvptop.admin:
+   ds_pvptop.admin:
       description: Access to all commands
       default: op
       children:
          dspvptop.player: true
-   dspvptop.player:
+   ds_pvptop.player:
       description: Permission to use /pvptop
       default: true

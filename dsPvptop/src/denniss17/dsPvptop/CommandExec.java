@@ -32,7 +32,7 @@ public class CommandExec implements CommandExecutor{
 			}else if(args[0].equals("me")){
 				return commandPvptopMe(sender, cmd, commandlabel, args);
 			}else if(args[0].equals("reload")){
-				plugin.reloadConfig();
+				return commandPvptopReload(sender, cmd, commandlabel, args);
 			}
 		}
 		return false;		
@@ -53,6 +53,9 @@ public class CommandExec implements CommandExecutor{
 		plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_kills"));
 		plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_deaths"));
 		plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_me"));
+		if(sender.hasPermission("ds_pvptop.admin")){
+			plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_reload"));
+		}
 	}
 	
 	private boolean commandPvptopKillDeath(CommandSender sender, Command cmd, String commandlabel, String[] args){
@@ -155,6 +158,19 @@ public class CommandExec implements CommandExecutor{
 			plugin.sendMessage(sender, "&cThe console doesn't have kills or deaths :P");
 		}
 		return true;		
+	}
+	
+	private boolean commandPvptopReload(CommandSender sender, Command cmd, String commandlabel, String[] args){
+		if(sender.hasPermission("ds_pvptop.admin")){
+			plugin.reloadConfig();
+			for(Player player : plugin.getServer().getOnlinePlayers()){
+				plugin.reloadPermissions(player);
+			}
+			plugin.sendMessage(sender, plugin.getConfig().getString("messages.reloaded"));
+		}else{
+			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));
+		}
+		return true;
 	}
 
 }

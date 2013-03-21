@@ -22,6 +22,7 @@ messages:
    menu_kills: ' &e/pvptop kills|k [start] &rShow killtop'
    menu_deaths: ' &e/pvptop deaths|d [start] &rShow deathtop'
    menu_me: ' &e/pvptop me &rShow your stats'
+   menu_reload: ' &e/pvptop reload &rReload config and permissions'
    # The markup for the headers of the different tops
    killdeath_header: '&8=========={ &e&ldsPvptop kill/death rate&r &8}=========='
    kills_header: '&8=========={ &e&ldsPvptop kills&r &8}=========='
@@ -36,6 +37,8 @@ messages:
    # The message a player gets when for example calling /pvptop kd and
    # a SQL exception occurs
    error_sql_exception: '&cSomething went wrong! Please contact an admin'
+   error_no_permission: '&8[&ePvPtop&8] &cYou have no permission to do this!'
+   reloaded: '&8[&ePvPtop&8] &fConfig and permissions reloaded'
 # Permissions to give to players
 permission:
   # Permissions to give to players if the given condition is met
