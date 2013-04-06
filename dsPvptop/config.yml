@@ -54,7 +54,7 @@ messages:
    # The format of the message you get when calling /pvptop me
    me_line: 'Your stats: &e<kills> &fkills - &e<deaths> &fdeaths - &e<killdeath> &fkill/death'
    # The format of the killstreak broadcast
-   killstreak_broadcast: '&8[&ePvPtop&8] &e<player> &fhas a killstreak of &e<curstreak>&f! Stop it!
+   killstreak_broadcast: '&8[&ePvPtop&8] &e<player> &fhas a killstreak of &e<curstreak>&f! Stop it!'
    # The message a player gets when for example calling /pvptop kd while
    # an io failure occured (SQL offline, couldn`t read from file etc)
    error_io_failure: '&8[&ePvPtop&8] &cSomething went wrong! Please contact an admin'
