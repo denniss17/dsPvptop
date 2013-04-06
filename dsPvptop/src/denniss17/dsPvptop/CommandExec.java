@@ -1,13 +1,11 @@
 package denniss17.dsPvptop;
 
-import java.sql.SQLException;
-
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import denniss17.dsPvptop.DS_Pvptop.PlayerStats;
+import denniss17.dsPvptop.PlayerStats;
 
 public class CommandExec implements CommandExecutor{
 
@@ -68,19 +66,20 @@ public class CommandExec implements CommandExecutor{
 			}
 		}
 		// Get top
-		try{
-			PlayerStats[] top = plugin.getKillDeathRatetop(start-1);
-			// Send messages
-			plugin.sendMessage(sender, plugin.getConfig().getString("messages.killdeath_header"));
-			for(PlayerStats playerStats : top){
-				if(playerStats!=null){
-					plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("messages.killdeath_line"), playerStats, index));
-				}
-				index++;
+		PlayerStats[] top = DS_Pvptop.ioManager.getKillDeathtop(start-1);
+		if(top==null){
+			// Error occured
+			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_io_failure"));
+			return true;
+		}
+		
+		// Send the top to the player
+		plugin.sendMessage(sender, plugin.getConfig().getString("messages.killdeath_header"));
+		for(PlayerStats playerStats : top){
+			if(playerStats!=null){
+				plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("messages.killdeath_line"), playerStats, index));
 			}
-		} catch (SQLException e) {
-			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_sql_exception"));
-			plugin.handleSQLException(e);
+			index++;
 		}
 		return true;
 	}
@@ -95,19 +94,21 @@ public class CommandExec implements CommandExecutor{
 			}
 		}
 		// Get top
-		try{
-			PlayerStats[] top = plugin.getKilltop(start-1);
-			// Send messages
-			plugin.sendMessage(sender, plugin.getConfig().getString("messages.kills_header"));
-			for(PlayerStats playerStats : top){
-				if(playerStats!=null){
-					plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("messages.kills_line"), playerStats, index));
-				}
-				index++;
+		PlayerStats[] top = DS_Pvptop.ioManager.getKilltop(start-1);
+		if(top==null){
+			// Error occured
+			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_io_failure"));
+			return true;
+		}
+		
+		
+		// Send messages
+		plugin.sendMessage(sender, plugin.getConfig().getString("messages.kills_header"));
+		for(PlayerStats playerStats : top){
+			if(playerStats!=null){
+				plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("messages.kills_line"), playerStats, index));
 			}
-		} catch (SQLException e) {
-			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_sql_exception"));
-			plugin.handleSQLException(e);
+			index++;
 		}
 		return true;
 	}
@@ -122,37 +123,31 @@ public class CommandExec implements CommandExecutor{
 			}
 		}
 		// Get top
-		try{
-			PlayerStats[] top = plugin.getDeathtop(start-1);
-			// Send messages
-			plugin.sendMessage(sender, plugin.getConfig().getString("messages.deaths_header"));
-			for(PlayerStats playerStats : top){
-				if(playerStats!=null){
-					plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("messages.deaths_line"), playerStats, index));
-				}
-				index++;
+		PlayerStats[] top = DS_Pvptop.ioManager.getDeathtop(start-1);
+		if(top==null){
+			// Error occured
+			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_io_failure"));
+			return true;
+		}
+		// Send messages
+		plugin.sendMessage(sender, plugin.getConfig().getString("messages.deaths_header"));
+		for(PlayerStats playerStats : top){
+			if(playerStats!=null){
+				plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("messages.deaths_line"), playerStats, index));
 			}
-		} catch (SQLException e) {
-			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_sql_exception"));
-			plugin.handleSQLException(e);
+			index++;
 		}
 		return true;
 	}
 	
 	private boolean commandPvptopMe(CommandSender sender, Command cmd, String commandlabel, String[] args){
 		if(sender instanceof Player){
-			try {
-				PlayerStats playerStats = plugin.getPlayerStats((Player)sender);
-				if(playerStats!=null){
-					plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("messages.me_line"), playerStats, 0));
-				}else{
-					// Not found in database => Send message with 0 kills and 0 deaths
-					plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("messages.me_line"), plugin.new PlayerStats(((Player)sender).getName(), 0, 0), 0));
-				}
-				
-			} catch (SQLException e) {
-				plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_sql_exception"));
-				plugin.handleSQLException(e);
+			PlayerStats playerStats = DS_Pvptop.ioManager.getPlayerStats((Player)sender);
+			if(playerStats!=null){
+				plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("messages.me_line"), playerStats, 0));
+			}else{
+				// Not found in database => Send message with 0 kills and 0 deaths
+				plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("messages.me_line"), new PlayerStats(((Player)sender).getName(), 0, 0), 0));
 			}
 		}else{
 			plugin.sendMessage(sender, "&cThe console doesn't have kills or deaths :P");
