@@ -6,6 +6,7 @@ public class PlayerStats {
 	public int deathCount;
 	public int maxKillstreak;
 	public int currentKillstreak;
+	
 	public String playerName;
 
 	public PlayerStats(String playerName, int killCount, int deathCount, int maxKillstreak, int currentKillstreak) {

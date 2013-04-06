@@ -6,7 +6,8 @@ general:
    check_for_updates: true
    # Time in minutes between two update checks
    update_check_interval: 180
-   # How should the kills and deaths be saved? Possible values: 'database' and 'yml'
+   # How should the kills and deaths be saved? Possible values: 'database'
+   # 'yml is not added yet!'
    save_method: database
 # Database settings
 database:
@@ -68,3 +69,5 @@ permission:
   #    '2,5': worldguard.elitepvpman   # Granted if kill/death rate is higher than 2.5
   # deaths:
   #    '<5': regions.hospital    # Granted if you have less then 5 deaths
+  # killstreak:
+  #    '>10': title.owner      # Granted if the player ever had a killstreak higher than 10
