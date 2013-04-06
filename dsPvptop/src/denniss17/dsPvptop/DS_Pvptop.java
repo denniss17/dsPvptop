@@ -51,6 +51,12 @@ public class DS_Pvptop extends JavaPlugin{
 			getLogger().severe("As a result, this plugin will be disabled!");
 			this.getServer().getPluginManager().disablePlugin(this);
 		}
+		
+		// Check for newer versions
+		if(this.getConfig().getBoolean("general.check_for_updates")){
+			versionChecker = new VersionChecker(this);
+			versionChecker.activate(this.getConfig().getInt("general.update_check_interval") * 60 * 20);
+		}
 	}
 	
 	/**

@@ -39,7 +39,7 @@ public class PlayerListener implements Listener {
 		
 		if(event.getPlayer().hasPermission("ds_pvptop.admin")){
 			// If there is a new version
-			if(DS_Pvptop.versionChecker.getLatestVersion() != null && !DS_Pvptop.versionChecker.getLatestVersion().equals(plugin.getDescription().getVersion())){
+			if(DS_Pvptop.versionChecker != null && DS_Pvptop.versionChecker.getLatestVersion() != null && !DS_Pvptop.versionChecker.getLatestVersion().equals(plugin.getDescription().getVersion())){
 				// Send message to player with admin permissions
 				plugin.sendMessage(event.getPlayer(), plugin.getConfig().getString("messages.update_notification")
 						.replace("{version}", DS_Pvptop.versionChecker.getLatestVersion())
