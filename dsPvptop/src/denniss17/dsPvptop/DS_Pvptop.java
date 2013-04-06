@@ -69,12 +69,29 @@ public class DS_Pvptop extends JavaPlugin{
 			ioManager.saveKill((Player)killer);
 			ioManager.saveDeath(victim);
 			
-			reloadPermissions((Player)killer);
+			PlayerStats killerStats = reloadPermissions((Player)killer);
 			reloadPermissions(victim);
+			
+			if(getConfig().getBoolean("general.killstreak_broadcast_enabled")){
+				if(killerStats.currentKillstreak >= getConfig().getInt("general.killstreak_broadcast_start")){
+					getServer().broadcastMessage(ChatStyler.setTotalStyle(parsePvptopLine(getConfig().getString("messages.killstreak_broadcast"), killerStats, 0)));
+				}
+			}
 		}else if(killer instanceof Projectile){
 			// Recall function with shooter of projectile as killer
 			handlePlayerKill(((Projectile)killer).getShooter(), victim);
 		}
+	}
+	
+	public String parsePvptopLine(String message, PlayerStats playerstats, int rank){
+		return message
+				.replace("<rank>", String.valueOf(rank))
+				.replace("<player>", playerstats.playerName)
+				.replace("<kills>", String.valueOf(playerstats.killCount))
+				.replace("<deaths>", String.valueOf(playerstats.deathCount))
+				.replace("<killdeath>", String.format("%.2f", playerstats.getKillDeathRate()))
+				.replace("<killstreak>", String.valueOf(playerstats.maxKillstreak))
+				.replace("<curstreak>", String.valueOf(playerstats.currentKillstreak));
 	}
 	
 	public void checkPermission(Player player, float value, String condition, String permission){
@@ -109,13 +126,14 @@ public class DS_Pvptop extends JavaPlugin{
 	 * Reload the permissions of this player
 	 * (Called when a kill is added or a player joins)
 	 * @param player The player to reload the perms for
+	 * @return The PlayerStats object which is used for calculation
 	 */
-	public void reloadPermissions(Player player){
-		if(player==null) return;
+	public PlayerStats reloadPermissions(Player player){
+		if(player==null) return null;
 		
 		PlayerStats playerStats = ioManager.getPlayerStats(player);
 		// An error occured. Stop here
-		if(playerStats==null) return;
+		if(playerStats==null) return null;
 		float killdeath = playerStats.getKillDeathRate();
 		
 		getLogger().info(playerStats.playerName + " d:" +  playerStats.deathCount + " k:" +   playerStats.killCount + " kd:" +   killdeath);
@@ -143,6 +161,14 @@ public class DS_Pvptop extends JavaPlugin{
 				checkPermission(player, playerStats.maxKillstreak,  condition, getConfig().getString("permission.killstreak." + condition));
 			}
 		}
+		
+		if(getConfig().contains("permission.currentkillstreak")){
+			for(String condition: getConfig().getConfigurationSection("permission.currentkillstreak").getKeys(false)){
+				checkPermission(player, playerStats.currentKillstreak,  condition, getConfig().getString("permission.currentkillstreak." + condition));
+			}
+		}
+		
+		return playerStats;
 	}
 	
 	public void addPermission(Player player, String permission){

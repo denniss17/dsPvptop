@@ -38,17 +38,6 @@ public class CommandExec implements CommandExecutor{
 		return false;		
 	}
 	
-	private String parsePvptopLine(String message, PlayerStats playerstats, int rank){
-		return message
-				.replace("<rank>", String.valueOf(rank))
-				.replace("<player>", playerstats.playerName)
-				.replace("<kills>", String.valueOf(playerstats.killCount))
-				.replace("<deaths>", String.valueOf(playerstats.deathCount))
-				.replace("<killdeath>", String.format("%.2f", playerstats.getKillDeathRate()))
-				.replace("<killstreak>", String.valueOf(playerstats.maxKillstreak))
-				.replace("<curstreak>", String.valueOf(playerstats.currentKillstreak));
-	}
-	
 	private void sendMenu(CommandSender sender){
 		plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_header"));
 		plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_killdeath"));
@@ -83,7 +72,7 @@ public class CommandExec implements CommandExecutor{
 		plugin.sendMessage(sender, plugin.getConfig().getString("messages.killdeath_header"));
 		for(PlayerStats playerStats : top){
 			if(playerStats!=null){
-				plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("messages.killdeath_line"), playerStats, index));
+				plugin.sendMessage(sender, plugin.parsePvptopLine(plugin.getConfig().getString("messages.killdeath_line"), playerStats, index));
 			}
 			index++;
 		}
@@ -113,7 +102,7 @@ public class CommandExec implements CommandExecutor{
 		plugin.sendMessage(sender, plugin.getConfig().getString("messages.kills_header"));
 		for(PlayerStats playerStats : top){
 			if(playerStats!=null){
-				plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("messages.kills_line"), playerStats, index));
+				plugin.sendMessage(sender, plugin.parsePvptopLine(plugin.getConfig().getString("messages.kills_line"), playerStats, index));
 			}
 			index++;
 		}
@@ -141,7 +130,7 @@ public class CommandExec implements CommandExecutor{
 		plugin.sendMessage(sender, plugin.getConfig().getString("messages.deaths_header"));
 		for(PlayerStats playerStats : top){
 			if(playerStats!=null){
-				plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("messages.deaths_line"), playerStats, index));
+				plugin.sendMessage(sender, plugin.parsePvptopLine(plugin.getConfig().getString("messages.deaths_line"), playerStats, index));
 			}
 			index++;
 		}
@@ -171,7 +160,7 @@ public class CommandExec implements CommandExecutor{
 		plugin.sendMessage(sender, plugin.getConfig().getString("messages.killstreak_header"));
 		for(PlayerStats playerStats : top){
 			if(playerStats!=null){
-				plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("messages.killstreak_line"), playerStats, index));
+				plugin.sendMessage(sender, plugin.parsePvptopLine(plugin.getConfig().getString("messages.killstreak_line"), playerStats, index));
 			}
 			index++;
 		}
@@ -182,10 +171,10 @@ public class CommandExec implements CommandExecutor{
 		if(sender instanceof Player){
 			PlayerStats playerStats = DS_Pvptop.ioManager.getPlayerStats((Player)sender);
 			if(playerStats!=null){
-				plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("messages.me_line"), playerStats, 0));
+				plugin.sendMessage(sender, plugin.parsePvptopLine(plugin.getConfig().getString("messages.me_line"), playerStats, 0));
 			}else{
 				// Not found in database => Send message with 0 kills and 0 deaths
-				plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("messages.me_line"), new PlayerStats(((Player)sender).getName(), 0, 0, 0, 0), 0));
+				plugin.sendMessage(sender, plugin.parsePvptopLine(plugin.getConfig().getString("messages.me_line"), new PlayerStats(((Player)sender).getName(), 0, 0, 0, 0), 0));
 			}
 		}else{
 			plugin.sendMessage(sender, "&cThe console doesn't have kills or deaths :P");
