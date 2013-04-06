@@ -68,7 +68,7 @@ public class DatabaseManager implements IOManager {
 		
 		// Update kill count for killer
 		query = "INSERT INTO `" + plugin.getConfig().getString("database.table_pvp_top") +
-				"`(`kills`,`deaths`,`user`) VALUES(1,0,?) ON DUPLICATE KEY UPDATE `kills`=`kills`+1";
+				"`(`kills`,`deaths`,`user`,`currentstreak`, `maxstreak`) VALUES(1,0,?,1,1) ON DUPLICATE KEY UPDATE `kills`=`kills`+1, `currentstreak`=`currentstreak`+1, `maxstreak`=((`maxstreak`+`currentstreak`)+ABS(`maxstreak`-`currentstreak`))/2";
 		
 		try {
 			databaseConnection.connect();
@@ -89,7 +89,7 @@ public class DatabaseManager implements IOManager {
 		
 		// Update death count for victim
 		query = "INSERT INTO `" + plugin.getConfig().getString("database.table_pvp_top") +
-				"`(`kills`,`deaths`,`user`) VALUES(0,1,?) ON DUPLICATE KEY UPDATE `deaths`=`deaths`+1";
+				"`(`kills`,`deaths`,`user`, `currentstreak`) VALUES(0,1,?,0) ON DUPLICATE KEY UPDATE `deaths`=`deaths`+1, `currentstreak`=0";
 		
 		try {
 			statement = databaseConnection.getConnection().prepareStatement(query);
