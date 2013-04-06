@@ -1,6 +1,5 @@
 package denniss17.dsPvptop.io;
 
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -11,9 +10,10 @@ import java.sql.Statement;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /** 
- * Generic Database class
- * Loads settings from config of the plugin
+ * Generic Database class for executing queries
+ * Loads settings from config of the plugin given to the constructor
  * @author Denniss17
+ * @version 1.0.0
  */
 public class DatabaseConnection{
 	private Connection connection;
