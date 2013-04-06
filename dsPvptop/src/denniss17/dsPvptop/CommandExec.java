@@ -27,6 +27,8 @@ public class CommandExec implements CommandExecutor{
 				return commandPvptopKills(sender, cmd, commandlabel, args);
 			}else if(args[0].equals("d") || args[0].equals("deaths")){
 				return commandPvptopDeaths(sender, cmd, commandlabel, args);
+			}else if(args[0].equals("ks") || args[0].equals("killstreak")){
+				return commandPvptopKillstreak(sender, cmd, commandlabel, args);
 			}else if(args[0].equals("me")){
 				return commandPvptopMe(sender, cmd, commandlabel, args);
 			}else if(args[0].equals("reload")){
@@ -42,7 +44,9 @@ public class CommandExec implements CommandExecutor{
 				.replace("<player>", playerstats.playerName)
 				.replace("<kills>", String.valueOf(playerstats.killCount))
 				.replace("<deaths>", String.valueOf(playerstats.deathCount))
-				.replace("<killdeath>", String.format("%.2f", playerstats.getKillDeathRate()));
+				.replace("<killdeath>", String.format("%.2f", playerstats.getKillDeathRate()))
+				.replace("<killstreak>", String.valueOf(playerstats.maxKillstreak))
+				.replace("<curstreak>", String.valueOf(playerstats.currentKillstreak));
 	}
 	
 	private void sendMenu(CommandSender sender){
@@ -50,6 +54,7 @@ public class CommandExec implements CommandExecutor{
 		plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_killdeath"));
 		plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_kills"));
 		plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_deaths"));
+		plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_killstreak"));
 		plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_me"));
 		if(sender.hasPermission("ds_pvptop.admin")){
 			plugin.sendMessage(sender, plugin.getConfig().getString("messages.menu_reload"));
@@ -61,7 +66,8 @@ public class CommandExec implements CommandExecutor{
 		// Parse additional argument
 		if(args.length>1){
 			try{
-				start = Integer.parseInt(args[1]);					
+				start = Integer.parseInt(args[1]);	
+				index = start;
 			}catch(NumberFormatException e){
 			}
 		}
@@ -89,7 +95,8 @@ public class CommandExec implements CommandExecutor{
 		// Parse additional argument
 		if(args.length>1){
 			try{
-				start = Integer.parseInt(args[1]);					
+				start = Integer.parseInt(args[1]);	
+				index = start;
 			}catch(NumberFormatException e){
 			}
 		}
@@ -118,7 +125,8 @@ public class CommandExec implements CommandExecutor{
 		// Parse additional argument
 		if(args.length>1){
 			try{
-				start = Integer.parseInt(args[1]);					
+				start = Integer.parseInt(args[1]);	
+				index = start;
 			}catch(NumberFormatException e){
 			}
 		}
@@ -140,6 +148,36 @@ public class CommandExec implements CommandExecutor{
 		return true;
 	}
 	
+	private boolean commandPvptopKillstreak(CommandSender sender, Command cmd, String commandlabel, String[] args){
+		int start = 1, index = 1;
+		// Parse additional argument
+		if(args.length>1){
+			try{
+				start = Integer.parseInt(args[1]);
+				index = start;
+			}catch(NumberFormatException e){
+			}
+		}
+		// Get top
+		PlayerStats[] top = DS_Pvptop.ioManager.getKillstreaktop(start-1);
+		if(top==null){
+			// Error occured
+			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_io_failure"));
+			return true;
+		}
+		
+		
+		// Send messages
+		plugin.sendMessage(sender, plugin.getConfig().getString("messages.killstreak_header"));
+		for(PlayerStats playerStats : top){
+			if(playerStats!=null){
+				plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("messages.killstreak_line"), playerStats, index));
+			}
+			index++;
+		}
+		return true;
+	}
+	
 	private boolean commandPvptopMe(CommandSender sender, Command cmd, String commandlabel, String[] args){
 		if(sender instanceof Player){
 			PlayerStats playerStats = DS_Pvptop.ioManager.getPlayerStats((Player)sender);
@@ -147,7 +185,7 @@ public class CommandExec implements CommandExecutor{
 				plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("messages.me_line"), playerStats, 0));
 			}else{
 				// Not found in database => Send message with 0 kills and 0 deaths
-				plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("messages.me_line"), new PlayerStats(((Player)sender).getName(), 0, 0), 0));
+				plugin.sendMessage(sender, this.parsePvptopLine(plugin.getConfig().getString("messages.me_line"), new PlayerStats(((Player)sender).getName(), 0, 0, 0, 0), 0));
 			}
 		}else{
 			plugin.sendMessage(sender, "&cThe console doesn't have kills or deaths :P");

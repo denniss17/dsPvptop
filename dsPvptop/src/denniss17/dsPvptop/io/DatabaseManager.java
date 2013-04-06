@@ -119,9 +119,9 @@ public class DatabaseManager implements IOManager {
 			ResultSet resultset = statement.executeQuery();
 			
 			if(resultset.next()){
-				result =  new PlayerStats(player.getName(), resultset.getInt("kills"), resultset.getInt("deaths"));
+				result =  new PlayerStats(player.getName(), resultset.getInt("kills"), resultset.getInt("deaths"), resultset.getInt("maxstreak"), resultset.getInt("currentstreak"));
 			}else{
-				result =  new PlayerStats(player.getName(), 0, 0);
+				result =  new PlayerStats(player.getName(), 0, 0, 0, 0);
 			}
 			
 			databaseConnection.close();
@@ -136,7 +136,7 @@ public class DatabaseManager implements IOManager {
 	public PlayerStats[] getDeathtop(int start) {
 		PlayerStats[] top = new PlayerStats[10];
 
-		String query = "SELECT user, kills, deaths FROM `"
+		String query = "SELECT * FROM `"
 				+ plugin.getConfig().getString("database.table_pvp_top")
 				+ "` ORDER BY deaths ASC, kills DESC LIMIT "
 				+ start + ", 10;";
@@ -146,7 +146,7 @@ public class DatabaseManager implements IOManager {
 	
 			int i = 0;
 			while (result.next()) {
-				top[i] = new PlayerStats(result.getString("user"), result.getInt("kills"),result.getInt("deaths"));
+				top[i] = new PlayerStats(result.getString("user"), result.getInt("kills"),result.getInt("deaths"), result.getInt("maxstreak"), result.getInt("currentstreak"));
 				i++;
 			}
 	
@@ -162,7 +162,7 @@ public class DatabaseManager implements IOManager {
 	public PlayerStats[] getKilltop(int start) {
 		PlayerStats[] top = new PlayerStats[10];
 
-		String query = "SELECT user, kills, deaths FROM `"
+		String query = "SELECT * FROM `"
 				+ plugin.getConfig().getString("database.table_pvp_top")
 				+ "` ORDER BY kills DESC, deaths ASC LIMIT "
 				+ start + ", 10;";
@@ -172,7 +172,33 @@ public class DatabaseManager implements IOManager {
 	
 			int i = 0;
 			while (result.next()) {
-				top[i] = new PlayerStats(result.getString("user"), result.getInt("kills"),result.getInt("deaths"));
+				top[i] = new PlayerStats(result.getString("user"), result.getInt("kills"),result.getInt("deaths"), result.getInt("maxstreak"), result.getInt("currentstreak"));
+				i++;
+			}
+	
+			databaseConnection.close();
+			return top;
+		}catch(SQLException e){
+			handleSQLException(e);
+			return null;
+		}
+	}
+
+	@Override
+	public PlayerStats[] getKillstreaktop(int start) {
+		PlayerStats[] top = new PlayerStats[10];
+
+		String query = "SELECT * FROM `"
+				+ plugin.getConfig().getString("database.table_pvp_top")
+				+ "` ORDER BY `maxstreak` DESC, `kills` DESC LIMIT "
+				+ start + ", 10;";
+		
+		try{
+			ResultSet result = databaseConnection.executeQuery(query);
+	
+			int i = 0;
+			while (result.next()) {
+				top[i] = new PlayerStats(result.getString("user"), result.getInt("kills"),result.getInt("deaths"), result.getInt("maxstreak"), result.getInt("currentstreak"));
 				i++;
 			}
 	
@@ -188,15 +214,15 @@ public class DatabaseManager implements IOManager {
 	public PlayerStats[] getKillDeathtop(int start) {
 		PlayerStats[] top = new PlayerStats[10];
 
-		String query = "SELECT user, kills, deaths, (2*kills/((deaths + .5) + ABS(deaths - .5))) AS rate FROM `"
+		String query = "SELECT * FROM `"
 				+ plugin.getConfig().getString("database.table_pvp_top")
-				+ "` ORDER BY rate DESC LIMIT "
+				+ "` ORDER BY (2*kills/((deaths + .5) + ABS(deaths - .5))) DESC LIMIT "
 				+ start + ", 10;";
 		try{
 			ResultSet result = databaseConnection.executeQuery(query);
 			int i = 0;
 			while (result.next()) {
-				top[i] = new PlayerStats(result.getString("user"), result.getInt("kills"),result.getInt("deaths"));
+				top[i] = new PlayerStats(result.getString("user"), result.getInt("kills"),result.getInt("deaths"), result.getInt("maxstreak"), result.getInt("currentstreak"));
 				i++;
 			}
 	

@@ -14,6 +14,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  * It is compatible with every plugin
  * @author Denniss17, All rights reserved
  * @copyright Denniss17, All rights reserved
+ * @version 1.1.0
  */
 public class VersionChecker implements Runnable{
 	
@@ -57,6 +58,7 @@ public class VersionChecker implements Runnable{
 			// Handle response
 			if(response.equals("OK")){
 				latestVersion = plugin.getDescription().getVersion();
+				plugin.getLogger().info("You have the latest version.");
 			}else if(response.equals("UK")){
 				// unknown
 			}else{
