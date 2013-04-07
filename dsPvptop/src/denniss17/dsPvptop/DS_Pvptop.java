@@ -13,6 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import denniss17.dsPvptop.io.DatabaseManager;
 import denniss17.dsPvptop.io.IOManager;
+import denniss17.dsPvptop.io.YamlManager;
 import denniss17.dsPvptop.VersionChecker;
 
 
@@ -44,7 +45,7 @@ public class DS_Pvptop extends JavaPlugin{
 		if(getConfig().getString("general.save_method").equals("database")){
 			ioManager = new DatabaseManager(this);
 		}else{
-			
+			ioManager = new YamlManager(this);
 		}
 		if(!ioManager.initialize()){
 			getLogger().severe("Unable to initialize IO. Please see earlier errors");
