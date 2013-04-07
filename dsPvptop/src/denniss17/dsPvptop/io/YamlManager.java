@@ -84,6 +84,9 @@ public class YamlManager implements IOManager {
 		PlayerStats[] result = new PlayerStats[10];
 		
 		SortedMap<Integer, String> top = new TreeMap<Integer, String>();
+		if(!getDataConfig().contains("kills")){
+			return result;
+		}
 		for(String name : getDataConfig().getConfigurationSection("kills").getKeys(false)){
 			top.put(getDataConfig().getInt("kills." + name), name);
 		}

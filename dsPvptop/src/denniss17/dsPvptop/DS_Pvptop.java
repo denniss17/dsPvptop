@@ -44,8 +44,12 @@ public class DS_Pvptop extends JavaPlugin{
 		
 		if(getConfig().getString("general.save_method").equals("database")){
 			ioManager = new DatabaseManager(this);
+			if(getConfig().getBoolean("general.debug"))
+				getLogger().info("Loaded database manager");
 		}else{
 			ioManager = new YamlManager(this);
+			if(getConfig().getBoolean("general.debug"))
+				getLogger().info("Loaded yml manager");
 		}
 		if(!ioManager.initialize()){
 			getLogger().severe("Unable to initialize IO. Please see earlier errors");
@@ -137,7 +141,8 @@ public class DS_Pvptop extends JavaPlugin{
 		if(playerStats==null) return null;
 		float killdeath = playerStats.getKillDeathRate();
 		
-		getLogger().info(playerStats.playerName + " d:" +  playerStats.deathCount + " k:" +   playerStats.killCount + " kd:" +   killdeath);
+		if(getConfig().getBoolean("general.debug"))
+			getLogger().info("Reloading perms for '" + playerStats.playerName + "' (d:" +  playerStats.deathCount + " k:" +   playerStats.killCount + " kd:" +   killdeath + " s:" + playerStats.currentKillstreak + ")");
 		
 		if(getConfig().contains("permission.kills")){
 			for(String condition: getConfig().getConfigurationSection("permission.kills").getKeys(false)){
@@ -178,7 +183,8 @@ public class DS_Pvptop extends JavaPlugin{
 		}
 		if(!grantedPermissions.get(player.getName()).getPermissions().containsKey(permission)){
 			grantedPermissions.get(player.getName()).setPermission(permission, true);
-			getLogger().info("Permission '" + permission + "' added to " + player.getName());
+			if(getConfig().getBoolean("general.debug"))
+				getLogger().info("Permission '" + permission + "' added to " + player.getName());
 		}
 	}
 	
