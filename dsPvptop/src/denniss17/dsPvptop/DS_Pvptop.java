@@ -152,13 +152,13 @@ public class DS_Pvptop extends JavaPlugin{
 		
 		if(getConfig().contains("permission.deaths")){
 			for(String condition: getConfig().getConfigurationSection("permission.deaths").getKeys(false)){
-				checkPermission(player, playerStats.killCount,  condition, getConfig().getString("permission.deaths." + condition));
+				checkPermission(player, playerStats.deathCount,  condition, getConfig().getString("permission.deaths." + condition));
 			}
 		}
 		
 		if(getConfig().contains("permission.killdeath")){
 			for(String condition: getConfig().getConfigurationSection("permission.killdeath").getKeys(false)){
-				checkPermission(player, playerStats.killCount,  condition, getConfig().getString("permission.killdeath." + condition));
+				checkPermission(player, killdeath,  condition, getConfig().getString("permission.killdeath." + condition));
 			}
 		}
 		

@@ -12,6 +12,11 @@ public interface IOManager {
 	public boolean initialize();
 	
 	/**
+	 * Called on /pvptop reload
+	 */
+	public void reload();
+	
+	/**
 	 * Save a kill by this player
 	 * @param player The killer
 	 * @return true on success

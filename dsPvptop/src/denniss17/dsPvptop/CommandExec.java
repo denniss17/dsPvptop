@@ -185,6 +185,7 @@ public class CommandExec implements CommandExecutor{
 	private boolean commandPvptopReload(CommandSender sender, Command cmd, String commandlabel, String[] args){
 		if(sender.hasPermission("ds_pvptop.admin")){
 			plugin.reloadConfig();
+			DS_Pvptop.ioManager.reload();
 			for(Player player : plugin.getServer().getOnlinePlayers()){
 				plugin.reloadPermissions(player);
 			}

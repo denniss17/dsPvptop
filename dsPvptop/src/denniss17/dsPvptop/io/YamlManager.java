@@ -2,9 +2,8 @@ package denniss17.dsPvptop.io;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map.Entry;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.logging.Level;
 
 import org.bukkit.configuration.MemorySection;
@@ -28,6 +27,11 @@ public class YamlManager implements IOManager {
 	@Override
 	public boolean initialize() {
 		return true;
+	}
+
+	@Override
+	public void reload() {
+		reloadDataConfig();
 	}
 
 	@Override
@@ -75,27 +79,48 @@ public class YamlManager implements IOManager {
 
 	@Override
 	public PlayerStats[] getDeathtop(int start) {
-		// TODO Auto-generated method stub
-		return null;
+		PlayerStats[] result = new PlayerStats[10];
+		
+		SortedSet<SortedSetEntry> top = new TreeSet<SortedSetEntry>();
+		
+		if(!getDataConfig().contains("deaths")){
+			return result;
+		}
+		for(String name : getDataConfig().getConfigurationSection("deaths").getKeys(false)){
+			top.add(new SortedSetEntry(name, getDataConfig().getInt("deaths." + name), false, getDataConfig().getInt("kills." + name), true));
+		}
+		
+		int count=0;
+		int index = 0;
+		for(SortedSetEntry entry : top){
+			if(count>=start && count<start+10){
+				result[index] = getPlayerStats(entry.playername);
+				index++;
+			}			
+			count++;
+		}
+		
+		return result;
 	}
 
 	@Override
 	public PlayerStats[] getKilltop(int start) {
 		PlayerStats[] result = new PlayerStats[10];
 		
-		SortedMap<Integer, String> top = new TreeMap<Integer, String>();
+		SortedSet<SortedSetEntry> top = new TreeSet<SortedSetEntry>();
+		
 		if(!getDataConfig().contains("kills")){
 			return result;
 		}
 		for(String name : getDataConfig().getConfigurationSection("kills").getKeys(false)){
-			top.put(getDataConfig().getInt("kills." + name), name);
+			top.add(new SortedSetEntry(name, getDataConfig().getInt("kills." + name), true, getDataConfig().getInt("deaths." + name), false));
 		}
 		
 		int count=0;
 		int index = 0;
-		for(Entry<Integer, String> entry : top.entrySet()){
+		for(SortedSetEntry entry : top){
 			if(count>=start && count<start+10){
-				result[index] = getPlayerStats(entry.getValue());
+				result[index] = getPlayerStats(entry.playername);
 				index++;
 			}			
 			count++;
@@ -106,14 +131,62 @@ public class YamlManager implements IOManager {
 
 	@Override
 	public PlayerStats[] getKillstreaktop(int start) {
-		// TODO Auto-generated method stub
-		return null;
+PlayerStats[] result = new PlayerStats[10];
+		
+		SortedSet<SortedSetEntry> top = new TreeSet<SortedSetEntry>();
+		
+		if(!getDataConfig().contains("maxstreaks")){
+			return result;
+		}
+		for(String name : getDataConfig().getConfigurationSection("maxstreaks").getKeys(false)){
+			top.add(new SortedSetEntry(name, getDataConfig().getInt("maxstreaks." + name), true, getDataConfig().getInt("currentstreaks." + name), true));
+		}
+		
+		int count=0;
+		int index = 0;
+		for(SortedSetEntry entry : top){
+			if(count>=start && count<start+10){
+				result[index] = getPlayerStats(entry.playername);
+				index++;
+			}			
+			count++;
+		}
+		
+		return result;
 	}
 
 	@Override
 	public PlayerStats[] getKillDeathtop(int start) {
-		// TODO Auto-generated method stub
-		return null;
+PlayerStats[] result = new PlayerStats[10];
+		
+		SortedSet<SortedSetEntry> top = new TreeSet<SortedSetEntry>();
+		
+		if(!getDataConfig().contains("kills")){
+			return result;
+		}
+		for(String name : getDataConfig().getConfigurationSection("kills").getKeys(false)){
+			int deaths = getDataConfig().getInt("deaths." + name);
+			float killdeath;
+			if(deaths==0){
+				killdeath = 2 * getDataConfig().getInt("kills." + name);
+			}else{
+				killdeath = (float)getDataConfig().getInt("kills." + name) / deaths;
+			}
+			
+			top.add(new SortedSetEntry(name, killdeath, true, getDataConfig().getInt("kills." + name), true));
+		}
+		
+		int count=0;
+		int index = 0;
+		for(SortedSetEntry entry : top){
+			if(count>=start && count<start+10){
+				result[index] = getPlayerStats(entry.playername);
+				index++;
+			}			
+			count++;
+		}
+		
+		return result;
 	}
 	
 	
@@ -140,6 +213,52 @@ public class YamlManager implements IOManager {
 			reloadDataConfig();
 		}
 		return dataConfig;
+	}
+	
+	/**
+	 * Custom class for sorting the player in the different tops
+	 */
+	class SortedSetEntry implements Comparable<SortedSetEntry>{
+		public String playername;
+		private float value1;
+		private float value2;
+		private boolean desc1;
+		private boolean desc2;
+		
+		/**
+		 * Create a new entry for a SortedSet
+		 * @param playername The name of the player
+		 * @param value1 The first value to sort on
+		 * @param desc1 Whether to sort the first value descending or ascending
+		 * @param value2 The second value to sort on
+		 * @param desc2 Whether to sort the second value descending or ascending
+		 */
+		public SortedSetEntry(String playername, float value1, boolean desc1, float value2, boolean desc2){
+			this.playername = playername;
+			this.value1 = value1;
+			this.value2 = value2;
+			this.desc1 = desc1;
+			this.desc2 = desc2;
+		}
+		
+		
+		@Override
+		public int compareTo(SortedSetEntry other) {
+			if(value1<other.value1){
+				return desc1 ? 1 : -1;
+			}else if(value1>other.value1){
+				return desc1 ? -1 : 1;
+			}else{
+				if(value2<other.value2){
+					return desc2 ? 1 : -1;
+				}else if(value2>other.value2){
+					return desc2 ? -1 : 1;
+				}else{
+					return playername.compareTo(other.playername);
+				}
+			}
+		}
+		
 	}
 
 }

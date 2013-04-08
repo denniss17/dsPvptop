@@ -29,6 +29,11 @@ public class DatabaseManager implements IOManager {
 		}
 	}
 	
+	@Override
+	public void reload() {
+		// Nothing		
+	}
+
 	/**
 	 * Check if the table exists
 	 * @throws SQLException
