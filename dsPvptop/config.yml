@@ -54,7 +54,7 @@ messages:
    deaths_line: '<rank> -  &e<player>&f - <deaths> deaths &7(<kills> kills, <killdeath> k/d)'
    killstreak_line: '<rank> -  &e<player>&f - <killstreak> killstreak &7(Current: <curstreak>)'
    # The format of the message you get when calling /pvptop me
-   me_line: 'Your stats: &e<kills> &fkills - &e<deaths> &fdeaths - &e<killdeath> &fkill/death'
+   me_line: 'Your stats: &e<kills> &fkills - &e<deaths> &fdeaths - &e<killdeath> &fkill/death - &e<killstreak> &fkillstreak &7(Current: <curstreak>)'
    # The format of the killstreak broadcast
    killstreak_broadcast: '&8[&ePvPtop&8] &e<player> &fhas a killstreak of &e<curstreak>&f! Stop it!'
    # The message a player gets when for example calling /pvptop kd while
