@@ -6,8 +6,7 @@ general:
    check_for_updates: true
    # Time in minutes between two update checks
    update_check_interval: 180
-   # How should the kills and deaths be saved? Possible values: 'database'
-   # 'yml is not added yet!'
+   # How should the kills and deaths be saved? Possible values: 'database' and 'yml'
    save_method: database
    # Is the killstreak broadcast enabled?
    # Killstreak broadcast is something like this:
