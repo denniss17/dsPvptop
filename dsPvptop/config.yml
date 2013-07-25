@@ -7,7 +7,7 @@ general:
    # Time in minutes between two update checks
    update_check_interval: 180
    # How should the kills and deaths be saved? Possible values: 'database' and 'yml'
-   save_method: database
+   save_method: yml
    # Is the killstreak broadcast enabled?
    # Killstreak broadcast is something like this:
    # "Player abc has a killstreak of 6! Stop it!"
@@ -82,3 +82,8 @@ permission:
   #    '>10': title.owner      # Granted if the player ever had a killstreak higher than 10
   # currentkillstreak:
   #    '>5': title.unstopable      # Granted if the player currently has a killstreak higher than 5
+  top:
+     # Here go the permissions for the top, but only for number 1 till 10
+     # Example config:
+     # kills:
+     #    '1': title.master     # Granted to the player with the most kills

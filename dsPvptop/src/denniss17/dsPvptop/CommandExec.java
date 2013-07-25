@@ -189,6 +189,7 @@ public class CommandExec implements CommandExecutor{
 			for(Player player : plugin.getServer().getOnlinePlayers()){
 				plugin.reloadPermissions(player);
 			}
+			plugin.reloadTopPermissions();
 			plugin.sendMessage(sender, plugin.getConfig().getString("messages.reloaded"));
 		}else{
 			plugin.sendMessage(sender, plugin.getConfig().getString("messages.error_no_permission"));

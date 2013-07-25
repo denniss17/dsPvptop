@@ -36,6 +36,7 @@ public class PlayerListener implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerJoin(PlayerJoinEvent event){
 		plugin.reloadPermissions(event.getPlayer());
+		plugin.reloadTopPermissions();
 		
 		if(event.getPlayer().hasPermission("ds_pvptop.admin")){
 			// If there is a new version
