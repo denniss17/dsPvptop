@@ -214,6 +214,32 @@ public class DatabaseManager implements IOManager {
 			return null;
 		}
 	}
+	
+	@Override
+	public PlayerStats[] getCurrentKillstreaktop(int start) {
+		PlayerStats[] top = new PlayerStats[10];
+
+		String query = "SELECT * FROM `"
+				+ plugin.getConfig().getString("database.table_pvp_top")
+				+ "` ORDER BY `currentstreak` DESC, `kills` DESC LIMIT "
+				+ start + ", 10;";
+		
+		try{
+			ResultSet result = databaseConnection.executeQuery(query);
+	
+			int i = 0;
+			while (result.next()) {
+				top[i] = new PlayerStats(result.getString("user"), result.getInt("kills"),result.getInt("deaths"), result.getInt("maxstreak"), result.getInt("currentstreak"));
+				i++;
+			}
+	
+			databaseConnection.close();
+			return top;
+		}catch(SQLException e){
+			handleSQLException(e);
+			return null;
+		}
+	}
 
 	@Override
 	public PlayerStats[] getKillDeathtop(int start) {

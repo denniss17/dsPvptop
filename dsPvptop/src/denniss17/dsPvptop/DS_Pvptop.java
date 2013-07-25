@@ -127,6 +127,90 @@ public class DS_Pvptop extends JavaPlugin{
 		}
 	}
 	
+	public void reloadTopPermissions(){
+		PlayerStats[] top;
+		
+		top = ioManager.getKilltop(0);
+		if(getConfig().contains("permission.top.kills")){
+			for(String number: getConfig().getConfigurationSection("permission.top.kills").getKeys(false)){
+				try{
+					int index = Integer.parseInt(number);
+					if(index<=10){
+						Player player = this.getServer().getPlayer(top[index-1].playerName);
+						removePermission(getConfig().getString("permission.top.kills." + number));
+						if(player!=null) addPermission(player, getConfig().getString("permission.top.kills." + number));
+					}	
+				}catch(NumberFormatException e){
+					this.getLogger().warning(number + " in permission.top is not a number!");
+				}
+			}
+		}
+		
+		top = ioManager.getDeathtop(0);
+		if(getConfig().contains("permission.top.deaths")){
+			for(String number: getConfig().getConfigurationSection("permission.top.deaths").getKeys(false)){
+				try{
+					int index = Integer.parseInt(number);
+					if(index<=10){
+						Player player = this.getServer().getPlayer(top[index-1].playerName);
+						removePermission(getConfig().getString("permission.top.deaths." + number));
+						if(player!=null) addPermission(player, getConfig().getString("permission.top.deaths." + number));
+					}	
+				}catch(NumberFormatException e){
+					this.getLogger().warning(number + " in permission.top is not a number!");
+				}
+			}
+		}
+		
+		top = ioManager.getKillDeathtop(0);
+		if(getConfig().contains("permission.top.killdeath")){
+			for(String number: getConfig().getConfigurationSection("permission.top.killdeath").getKeys(false)){
+				try{
+					int index = Integer.parseInt(number);
+					if(index<=10){
+						Player player = this.getServer().getPlayer(top[index-1].playerName);
+						removePermission(getConfig().getString("permission.top.killdeath." + number));
+						if(player!=null) addPermission(player, getConfig().getString("permission.top.killdeath." + number));
+					}	
+				}catch(NumberFormatException e){
+					this.getLogger().warning(number + " in permission.top is not a number!");
+				}
+			}
+		}		
+		
+		top = ioManager.getKillstreaktop(0);
+		if(getConfig().contains("permission.top.killstreak")){
+			for(String number: getConfig().getConfigurationSection("permission.top.killstreak").getKeys(false)){
+				try{
+					int index = Integer.parseInt(number);
+					if(index<=10){
+						Player player = this.getServer().getPlayer(top[index-1].playerName);
+						removePermission(getConfig().getString("permission.top.killstreak." + number));
+						if(player!=null) addPermission(player, getConfig().getString("permission.top.killstreak." + number));
+					}	
+				}catch(NumberFormatException e){
+					this.getLogger().warning(number + " in permission.top is not a number!");
+				}
+			}
+		}		
+		
+		top = ioManager.getCurrentKillstreaktop(0);
+		if(getConfig().contains("permission.top.currentkillstreak")){
+			for(String number: getConfig().getConfigurationSection("permission.top.currentkillstreak").getKeys(false)){
+				try{
+					int index = Integer.parseInt(number);
+					if(index<=10){
+						Player player = this.getServer().getPlayer(top[index-1].playerName);
+						removePermission(getConfig().getString("permission.top.currentkillstreak." + number));
+						if(player!=null) addPermission(player, getConfig().getString("permission.top.currentkillstreak." + number));
+					}	
+				}catch(NumberFormatException e){
+					this.getLogger().warning(number + " in permission.top is not a number!");
+				}
+			}
+		}			
+	}
+	
 	/**
 	 * Reload the permissions of this player
 	 * (Called when a kill is added or a player joins)
@@ -191,6 +275,12 @@ public class DS_Pvptop extends JavaPlugin{
 	public void removePermission(Player player, String permission){
 		if(grantedPermissions.containsKey(player.getName())){
 			grantedPermissions.get(player.getName()).unsetPermission(permission);
+		}
+	}
+
+	private void removePermission(String permission) {
+		for(PermissionAttachment permissions : grantedPermissions.values()){
+			permissions.unsetPermission(permission);
 		}
 	}
 

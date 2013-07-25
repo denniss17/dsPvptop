@@ -59,6 +59,13 @@ public interface IOManager {
 	public PlayerStats[] getKillstreaktop(int start);
 	
 	/**
+	 * Get the 10 players with highest current killstreak, starting at start.
+	 * @param start
+	 * @return An array or null on failure
+	 */
+	public PlayerStats[] getCurrentKillstreaktop(int start);
+	
+	/**
 	 * Get the 10 players with highest kill/death rate, starting at start.
 	 * @param start
 	 * @return An array or null on failure

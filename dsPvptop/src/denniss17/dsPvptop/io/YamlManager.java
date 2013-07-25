@@ -131,7 +131,7 @@ public class YamlManager implements IOManager {
 
 	@Override
 	public PlayerStats[] getKillstreaktop(int start) {
-PlayerStats[] result = new PlayerStats[10];
+		PlayerStats[] result = new PlayerStats[10];
 		
 		SortedSet<SortedSetEntry> top = new TreeSet<SortedSetEntry>();
 		
@@ -154,10 +154,36 @@ PlayerStats[] result = new PlayerStats[10];
 		
 		return result;
 	}
+	
+	@Override
+	public PlayerStats[] getCurrentKillstreaktop(int start) {
+		PlayerStats[] result = new PlayerStats[10];
+		
+		SortedSet<SortedSetEntry> top = new TreeSet<SortedSetEntry>();
+		
+		if(!getDataConfig().contains("currentstreaks")){
+			return result;
+		}
+		for(String name : getDataConfig().getConfigurationSection("currentstreaks").getKeys(false)){
+			top.add(new SortedSetEntry(name, getDataConfig().getInt("currentstreaks." + name), true, getDataConfig().getInt("kills." + name), true));
+		}
+		
+		int count=0;
+		int index = 0;
+		for(SortedSetEntry entry : top){
+			if(count>=start && count<start+10){
+				result[index] = getPlayerStats(entry.playername);
+				index++;
+			}			
+			count++;
+		}
+		
+		return result;
+	}
 
 	@Override
 	public PlayerStats[] getKillDeathtop(int start) {
-PlayerStats[] result = new PlayerStats[10];
+		PlayerStats[] result = new PlayerStats[10];
 		
 		SortedSet<SortedSetEntry> top = new TreeSet<SortedSetEntry>();
 		
